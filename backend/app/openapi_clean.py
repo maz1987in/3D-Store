@@ -65,6 +65,8 @@ def build_openapi_spec() -> Dict[str, Any]:
     schemas["AccountingTransaction"]["x-transitions"] = ["PENDING", "APPROVED", "PAID", "REJECTED"]
     # PurchaseOrder lifecycle (DRAFT -> RECEIVED -> CLOSED)
     schemas["PurchaseOrder"]["x-transitions"] = ["DRAFT", "RECEIVED", "CLOSED"]
+    # RepairTicket lifecycle (NEW -> IN_PROGRESS -> COMPLETED -> CLOSED; CANCELLED alternative path)
+    schemas["RepairTicket"]["x-transitions"] = ["NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED", "CLOSED"]
 
     components: Dict[str, Any] = {
         "schemas": schemas | {
@@ -213,6 +215,26 @@ def build_openapi_spec() -> Dict[str, Any]:
                         "parameters": action_common_params,
                         "responses": {
                             "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PurchaseOrder"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
+                }
+        elif schema_name == "RepairTicket":
+            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
+            for action, summary in [
+                ("start", "Start repair ticket"),
+                ("complete", "Complete repair ticket"),
+                ("close", "Close repair ticket"),
+                ("cancel", "Cancel repair ticket"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RepairTicket"}}}},
                             "400": {"$ref": "#/components/responses/BadRequest"},
                             "404": {"$ref": "#/components/responses/NotFound"},
                         },
