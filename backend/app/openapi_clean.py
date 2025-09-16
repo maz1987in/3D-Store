@@ -62,7 +62,8 @@ def build_openapi_spec() -> Dict[str, Any]:
     schemas["PrintJob"]["x-transitions"] = ["QUEUED", "STARTED", "COMPLETED"]
     # Order lifecycle transitions (NEW -> APPROVED -> FULFILLED -> COMPLETED; any non-terminal except COMPLETED can CANCEL)
     schemas["Order"]["x-transitions"] = ["NEW", "APPROVED", "FULFILLED", "COMPLETED", "CANCELLED"]
-    schemas["AccountingTransaction"]["x-transitions"] = ["PENDING", "APPROVED", "PAID", "REJECTED"]
+    # AccountingTransaction lifecycle (NEW -> APPROVED -> PAID | NEW -> REJECTED)
+    schemas["AccountingTransaction"]["x-transitions"] = ["NEW", "APPROVED", "PAID", "REJECTED"]
     # PurchaseOrder lifecycle (DRAFT -> RECEIVED -> CLOSED)
     schemas["PurchaseOrder"]["x-transitions"] = ["DRAFT", "RECEIVED", "CLOSED"]
     # RepairTicket lifecycle (NEW -> IN_PROGRESS -> COMPLETED -> CLOSED; CANCELLED alternative path)
@@ -221,6 +222,102 @@ def build_openapi_spec() -> Dict[str, Any]:
                     }
                 }
         elif schema_name == "RepairTicket":
+            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
+            for action, summary in [
+                ("start", "Start repair ticket"),
+                ("complete", "Complete repair ticket"),
+                ("close", "Close repair ticket"),
+                ("cancel", "Cancel repair ticket"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RepairTicket"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
+                }
+        elif schema_name == "AccountingTransaction":
+            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
+            for action, summary in [
+                ("approve", "Approve accounting transaction"),
+                ("pay", "Pay accounting transaction"),
+                ("reject", "Reject accounting transaction"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AccountingTransaction"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
+                }
+
+    # Inject x-required-permissions based on simple heuristics from path patterns
+    for path, ops in paths.items():
+        for method, od in ops.items():
+            # Skip if already annotated
+            if 'x-required-permissions' in od:
+                continue
+            perms: list[str] = []
+            if path.startswith('/iam/auth'):
+                perms = []  # auth open
+            elif '/print/jobs' in path:
+                if path.endswith('/start'):
+                    perms = ['PRINT.START']
+                elif path.endswith('/complete'):
+                    perms = ['PRINT.COMPLETE']
+                else:
+                    perms = ['PRINT.READ'] if method in ('get','head') else []
+            elif '/sales/orders' in path:
+                if path.endswith('/approve'):
+                    perms = ['SALES.APPROVE']
+                elif path.endswith('/fulfill'):
+                    perms = ['SALES.FULFILL']
+                elif path.endswith('/complete'):
+                    perms = ['SALES.COMPLETE']
+                elif path.endswith('/cancel'):
+                    perms = ['SALES.CANCEL']
+                else:
+                    perms = ['SALES.READ'] if method in ('get','head') else []
+            elif '/po/purchase-orders' in path:
+                if path.endswith('/receive'):
+                    perms = ['PO.RECEIVE']
+                elif path.endswith('/close'):
+                    perms = ['PO.CLOSE']
+                else:
+                    perms = ['PO.READ'] if method in ('get','head') else []
+            elif '/repairs/tickets' in path:
+                if any(path.endswith(suf) for suf in ('/start','/complete','/close','/cancel')):
+                    perms = ['RPR.MANAGE']
+                else:
+                    perms = ['RPR.READ'] if method in ('get','head') else []
+            elif '/accounting/transactions' in path:
+                if path.endswith('/approve'):
+                    perms = ['ACC.APPROVE']
+                elif path.endswith('/pay'):
+                    perms = ['ACC.PAY']
+                elif path.endswith('/reject'):
+                    perms = ['ACC.APPROVE']
+                else:
+                    perms = ['ACC.READ'] if method in ('get','head') else []
+            elif '/inventory/products' in path:
+                perms = ['INV.READ'] if method in ('get','head') else []
+            elif '/catalog/items' in path:
+                perms = ['CAT.READ'] if method in ('get','head') else []
+            elif '/vendors' in path:
+                perms = ['PO.READ'] if method in ('get','head') else []
+            # Only attach if determined
+            if perms:
+                od['x-required-permissions'] = perms
             action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
             for action, summary in [
                 ("start", "Start repair ticket"),
