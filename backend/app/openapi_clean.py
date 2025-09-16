@@ -63,6 +63,8 @@ def build_openapi_spec() -> Dict[str, Any]:
     # Order lifecycle transitions (NEW -> APPROVED -> FULFILLED -> COMPLETED; any non-terminal except COMPLETED can CANCEL)
     schemas["Order"]["x-transitions"] = ["NEW", "APPROVED", "FULFILLED", "COMPLETED", "CANCELLED"]
     schemas["AccountingTransaction"]["x-transitions"] = ["PENDING", "APPROVED", "PAID", "REJECTED"]
+    # PurchaseOrder lifecycle (DRAFT -> RECEIVED -> CLOSED)
+    schemas["PurchaseOrder"]["x-transitions"] = ["DRAFT", "RECEIVED", "CLOSED"]
 
     components: Dict[str, Any] = {
         "schemas": schemas | {
@@ -193,6 +195,24 @@ def build_openapi_spec() -> Dict[str, Any]:
                         "parameters": action_common_params,
                         "responses": {
                             "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Order"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
+                }
+        elif schema_name == "PurchaseOrder":
+            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
+            for action, summary in [
+                ("receive", "Receive purchase order"),
+                ("close", "Close purchase order"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PurchaseOrder"}}}},
                             "400": {"$ref": "#/components/responses/BadRequest"},
                             "404": {"$ref": "#/components/responses/NotFound"},
                         },
