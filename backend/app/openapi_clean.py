@@ -68,6 +68,8 @@ def build_openapi_spec() -> Dict[str, Any]:
     schemas["PurchaseOrder"]["x-transitions"] = ["DRAFT", "RECEIVED", "CLOSED"]
     # RepairTicket lifecycle (NEW -> IN_PROGRESS -> COMPLETED -> CLOSED; CANCELLED alternative path)
     schemas["RepairTicket"]["x-transitions"] = ["NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED", "CLOSED"]
+    # CatalogItem simple status toggle ACTIVE <-> ARCHIVED
+    schemas["CatalogItem"]["x-transitions"] = ["ACTIVE", "ARCHIVED"]
 
     components: Dict[str, Any] = {
         "schemas": schemas | {
@@ -156,33 +158,25 @@ def build_openapi_spec() -> Dict[str, Any]:
             },
         }
 
-        # Domain-specific action endpoints (begin with PrintJob minimal FSM actions)
+        # Domain-specific action endpoints
         if schema_name == "PrintJob":
-            start_path = f"{single_path}/start"
-            complete_path = f"{single_path}/complete"
             action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            paths[start_path] = {
-                "post": {
-                    "summary": "Start print job",
-                    "parameters": action_common_params,
-                    "responses": {
-                        "200": {"description": "Started", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PrintJob"}}}},
-                        "400": {"$ref": "#/components/responses/BadRequest"},
-                        "404": {"$ref": "#/components/responses/NotFound"},
-                    },
+            for action, summary in [
+                ("start", "Start print job"),
+                ("complete", "Complete print job"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PrintJob"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
                 }
-            }
-            paths[complete_path] = {
-                "post": {
-                    "summary": "Complete print job",
-                    "parameters": action_common_params,
-                    "responses": {
-                        "200": {"description": "Completed", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PrintJob"}}}},
-                        "400": {"$ref": "#/components/responses/BadRequest"},
-                        "404": {"$ref": "#/components/responses/NotFound"},
-                    },
-                }
-            }
         elif schema_name == "Order":
             action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
             for action, summary in [
@@ -255,6 +249,24 @@ def build_openapi_spec() -> Dict[str, Any]:
                         "parameters": action_common_params,
                         "responses": {
                             "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AccountingTransaction"}}}},
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                        },
+                    }
+                }
+        elif schema_name == "CatalogItem":
+            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
+            for action, summary in [
+                ("archive", "Archive catalog item"),
+                ("activate", "Activate catalog item"),
+            ]:
+                act_path = f"{single_path}/{action}"
+                paths[act_path] = {
+                    "post": {
+                        "summary": summary,
+                        "parameters": action_common_params,
+                        "responses": {
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CatalogItem"}}}},
                             "400": {"$ref": "#/components/responses/BadRequest"},
                             "404": {"$ref": "#/components/responses/NotFound"},
                         },
