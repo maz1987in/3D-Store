@@ -164,6 +164,41 @@ Planned Enhancements:
 - Add action/transition endpoints for state machines (approve / pay / reject for accounting, start / complete for print jobs) and embed `x-transition-rules` if needed.
 - CI gate comparing previous hash on PRs to force reviewer acknowledgement.
 
+### Declarative Action Registry (Implemented)
+Action endpoints and their permissions are now generated from a centralized registry inside `app/openapi_clean.py`:
+```python
+ACTION_REGISTRY = {
+	"Order": [
+		{"action": "approve", "summary": "Approve order", "permission": "SALES.APPROVE"},
+		# ...
+	],
+	# other entities...
+}
+```
+Rules enforced:
+- Each POST action path gets its required permission injected at build time (`x-required-permissions`).
+- All GET/HEAD list + single resource endpoints auto-annotated with `<SERVICE>.READ` based on domain.
+- Registry is the single source of truth; adding/removing an action only requires editing this dict and implementing the runtime route.
+
+Validation Tests:
+- `tests/test_action_permissions.py` asserts every detected action endpoint has a non-empty `x-required-permissions` list.
+- It also asserts every non-auth GET/HEAD endpoint exposes a read permission.
+
+Extending:
+1. Add action definition to `ACTION_REGISTRY` (include permission constant already seeded in roles).
+2. Implement route with `@require_permissions` and `@audit_log` (matching permission).
+3. Run tests; update spec hash if other structural spec changes were made.
+4. If a new permission was introduced, ensure seeding adds it to roles; consider adding a test to confirm presence.
+
+Rationale:
+- Eliminates brittle path-based heuristics for permission inference.
+- Reduces risk of forgetting to document a permission (test fails early).
+- Keeps spec diff minimal and deterministic, simplifying client codegen or metadata indexing.
+
+Future Hardening:
+- Add a test cross-checking that each action permission appears in at least one seeded role (prevent orphan permissions).
+- Optionally expose a machine-readable `x-action` object with structured metadata (e.g., `{"name": "approve", "entity": "Order"}`) for richer UI automation.
+
 Regenerating Hash Manually:
 ```bash
 pytest tests/test_openapi.py::test_openapi_spec_hash_stable -q || \
@@ -174,6 +209,24 @@ spec=build_openapi_spec();blob=json.dumps(spec,sort_keys=True,separators=(',',':
 open('backend/tests/openapi_spec_hash.txt','w').write(hashlib.sha256(blob).hexdigest()+"\n")
 print('Updated hash')
 PY
+```
+
+Spec Generation CLI (Preferred):
+```bash
+# Show current hash
+python -m scripts.generate_spec
+
+# Write full spec JSON artifact
+python -m scripts.generate_spec --out backend/openapi.json
+
+# CI style check (non-zero exit if mismatch)
+python -m scripts.generate_spec --check
+
+# Update snapshot after intentional changes
+python -m scripts.generate_spec --update-hash
+
+# Combine: write spec + update snapshot
+python -m scripts.generate_spec --out backend/openapi.json --update-hash
 ```
 
 Best Practices:

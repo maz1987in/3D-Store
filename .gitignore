@@ -1,0 +1,49 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+.env/
+.envrc
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test / coverage
+.pytest_cache/
+.coverage*
+htmlcov/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# Logs / runtime
+*.log
+*.sqlite3
+*.db
+/dev.db
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+
+# Generated specs
+backend/openapi.json
+
+# Local overrides
+.env.local
+.env.development.local
+.env.test.local
+
+# MacOS
+.DS_Store

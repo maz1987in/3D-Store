@@ -1,0 +1,136 @@
+Extend the app with robust multi-tenant authorization: roles + groups + permissions (policy-based RBAC/ABAC). Keep JWT auth already defined, but add the following.
+
+========================
+H) USERS, ROLES, GROUPS, PERMISSIONS
+========================
+Models (SQLAlchemy + Alembic + Marshmallow):
+- Permission(id, code unique, service in {SALES, PRINT, ACCOUNTING, INVENTORY, CATALOG, PURCHASES, REPAIRS, REPORTS, ADMIN}, action in {READ, CREATE, UPDATE, DELETE, APPROVE, PAY, EXPORT}, description_i18n JSON)
+- Role(id, name unique, is_system bool, description_i18n JSON)
+- RolePermission(id, role_id, permission_id)  -- many-to-many
+- Group(id, name unique, description_i18n JSON, branch_scope JSON nullable)  -- optional branch scoping rules
+- GroupRole(id, group_id, role_id)  -- many-to-many
+- User(id, name, email unique, phone, password_hash, is_active, locale='en', tz='Asia/Muscat')
+- UserGroup(id, user_id, group_id)  -- many-to-many
+- UserRole(id, user_id, role_id)    -- direct role assignment override (optional)
+
+JWT claims MUST include: sub, roles[], perms[] (flattened), groups[], branch_ids[] (if scoped), locale.
+- On login / refresh, compute effective permissions = union(UserRole + roles from UserGroup) → RolePermission → Permission.code list.
+- Add optional branch scoping: if a Group has branch_scope (e.g., {"allow": [branch_ids]}), inject branch_ids[] claim to limit data.
+
+Services/Permission Codes (examples; create full matrix):
+- SALES: SALES.READ, SALES.CREATE, SALES.UPDATE, SALES.DELETE, SALES.APPROVE, SALES.EXPORT
+- PRINT: PRINT.READ, PRINT.CREATE, PRINT.UPDATE, PRINT.DELETE, PRINT.START, PRINT.COMPLETE
+- ACCOUNTING: ACC.READ, ACC.UPDATE, ACC.APPROVE, ACC.PAY, ACC.EXPORT
+- INVENTORY: INV.READ, INV.ADJUST, INV.RECEIVE_PO
+- CATALOG: CAT.READ, CAT.MANAGE
+- PURCHASES: PO.READ, PO.CREATE, PO.RECEIVE, PO.CLOSE
+- REPAIRS: RPR.READ, RPR.MANAGE
+- REPORTS: RPT.READ
+- ADMIN: ADMIN.USER.MANAGE, ADMIN.ROLE.MANAGE, ADMIN.GROUP.MANAGE, ADMIN.SETTINGS.MANAGE
+
+Role presets (seed):
+- Seller: SALES.CREATE, SALES.READ, RPT.READ
+- Printer (Technician): PRINT.READ, PRINT.START, PRINT.COMPLETE, RPR.MANAGE (optional), RPT.READ
+- Accounting: ACC.READ, ACC.UPDATE, ACC.APPROVE, ACC.PAY, ACC.EXPORT, RPT.READ
+- Manager: union of SALES/PRINT/ACCOUNTING/INVENTORY/REPORTS basic + APPROVE where sensible
+- Owner: all permissions + ADMIN.*
+
+Groups:
+- “Sellers” group → attach Seller role, optional branch_scope
+- “Printers” group → attach Printer role
+- “Accounting” group → attach Accounting role
+- Users can belong to multiple groups; direct roles may be added for exceptions.
+
+========================
+I) AUTHZ MIDDLEWARE & POLICY LAYER
+========================
+- Implement @require_permissions(*codes) decorator for Flask resource methods.
+- Implement row-level guard helpers:
+  • assert_branch_access(branch_id) using JWT branch_ids[]
+  • assert_owns_record(user_id, record.created_by) where relevant (e.g., allow seller to view only their own sales if configured)
+- Config flags in AppSetting:
+  - AUTHZ_ENFORCE_BRANCH_SCOPE (bool)
+  - SELLER_SEES_ONLY_THEIR_SALES (bool)
+  - PRINTER_SEES_ASSIGNED_ONLY (bool)
+- Centralize policy checks in services/policy.py with unit tests.
+
+========================
+J) ENDPOINTS FOR IAM (ADMIN)
+========================
+- /iam/permissions (GET list)
+- /iam/roles (CRUD)
+- /iam/roles/{id}/permissions (PUT: replace list)
+- /iam/groups (CRUD)
+- /iam/groups/{id}/roles (PUT: replace list)
+- /iam/users (CRUD basic admin)
+- /iam/users/{id}/groups (PUT)
+- /iam/users/{id}/roles (PUT)
+- /auth/me (GET profile incl. roles, groups, perms)
+Validation:
+- Prevent removal of last Owner/ADMIN role from final admin user.
+- Soft-delete safe guards.
+
+========================
+K) UI (ANGULAR) GUARDS & MENUS
+========================
+- Add Guard: PermissionGuard(requiredPerms: string[]). Use in routes, e.g.:
+  { path: 'accounting', canActivate: [AuthGuard, PermissionGuard], data: { perms: ['ACC.READ'] }, ... }
+- Nav/menu rendering driven by perms[] from /auth/me.
+- Hide/disable actions (buttons) without permission.
+- Show branch selector if user has multiple branch_ids; persist selected branch in state and include X-Branch-Id header on API calls.
+
+========================
+L) ROLE MAPPING TO USER SCENARIOS
+========================
+Use cases:
+1) Sellers add their sale:
+   - Route uses perms ['SALES.CREATE'].
+   - Back end: if SELLER_SEES_ONLY_THEIR_SALES=true → filter /orders to created_by or SOItem.seller_id = current user.
+   - Commission attribution uses SOItem.seller_id (default to current user when seller creates).
+2) Printer sees print orders and prints them:
+   - List endpoint /print-jobs requires PRINT.READ; policy enforces PRINTER_SEES_ASSIGNED_ONLY → filter by assigned_to or assigned_printer_id branch scope.
+   - State transitions (start/complete) require PRINT.START / PRINT.COMPLETE.
+3) Accounting sees and edits financial info:
+   - Payments/refunds endpoints require ACC.UPDATE / ACC.PAY.
+   - Payouts approval/pay require ACC.APPROVE / ACC.PAY.
+   - Export CSV/PDF requires ACC.EXPORT (and RPT.READ where applicable).
+
+========================
+M) OPENAPI & I18N IN IAM
+========================
+- Expose Permission and Role definitions in OpenAPI.
+- Return i18n labels for permissions/roles in responses:
+  { code: "ACC.PAY", label_i18n: { en: "Accounting - Pay", ar: "المحاسبة - السداد" } }
+- Make IAM pages i18n-ready (ar/en) and RTL-aware.
+
+========================
+N) SEED & TESTS (IAM)
+========================
+Seed:
+- Permissions set (full matrix), roles (Owner, Manager, Seller, Printer, Accounting), groups (Sellers, Printers, Accounting).
+- Create at least 3 users: seller_user, printer_user, accounting_user with respective groups.
+Tests:
+- Effective perm resolution for (UserRoles ∪ GroupRoles).
+- Route protection unit tests (positive/negative).
+- Branch scope filtering behavior.
+- Prevention of last-admin removal.
+
+========================
+O) AUDIT & OBSERVABILITY
+========================
+- AuditLog must include actor_user_id and perms snapshot on sensitive actions (payments, payouts, stock adjustments, role/group changes).
+- Emit structured logs with user_id and route for security reviews.
+
+DELIVERABLES
+- Updated DB models, migrations, services/policy layer, decorators.
+- Angular guards, menu-permission wiring, and example protected routes for Sales, Print, Accounting, IAM.
+- Seed data + unit tests as described.
+
+========================
+O) Documentation
+========================
+- Save all documentation into docs folder in markdown format.
+- Document API endpoints, request/response formats, and error handling.
+- Include examples for common use cases (e.g. creating a user, assigning roles).
+- Provide a glossary of terms (e.g. roles, permissions, groups) and their meanings.
+- Maintain an up-to-date changelog for all IAM-related changes.

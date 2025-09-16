@@ -22,6 +22,51 @@ ENTITIES: List[Tuple[str, str, str, str]] = [
     ("RepairTicket", "repairs", "tickets", "ticket_id"),
 ]
 
+# Declarative registry for action (state-changing) endpoints.
+# Each entry maps an entity to a list of actions specifying path suffix, summary and required permission code.
+ACTION_REGISTRY: Dict[str, List[Dict[str, str]]] = {
+    "PrintJob": [
+        {"action": "start", "summary": "Start print job", "permission": "PRINT.START"},
+        {"action": "complete", "summary": "Complete print job", "permission": "PRINT.COMPLETE"},
+    ],
+    "Order": [
+        {"action": "approve", "summary": "Approve order", "permission": "SALES.APPROVE"},
+        {"action": "fulfill", "summary": "Fulfill order", "permission": "SALES.FULFILL"},
+        {"action": "complete", "summary": "Complete order", "permission": "SALES.COMPLETE"},
+        {"action": "cancel", "summary": "Cancel order", "permission": "SALES.CANCEL"},
+    ],
+    "PurchaseOrder": [
+        {"action": "receive", "summary": "Receive purchase order", "permission": "PO.RECEIVE"},
+        {"action": "close", "summary": "Close purchase order", "permission": "PO.CLOSE"},
+    ],
+    "RepairTicket": [
+        {"action": "start", "summary": "Start repair ticket", "permission": "RPR.MANAGE"},
+        {"action": "complete", "summary": "Complete repair ticket", "permission": "RPR.MANAGE"},
+        {"action": "close", "summary": "Close repair ticket", "permission": "RPR.MANAGE"},
+        {"action": "cancel", "summary": "Cancel repair ticket", "permission": "RPR.MANAGE"},
+    ],
+    "AccountingTransaction": [
+        {"action": "approve", "summary": "Approve accounting transaction", "permission": "ACC.APPROVE"},
+        {"action": "pay", "summary": "Pay accounting transaction", "permission": "ACC.PAY"},
+        {"action": "reject", "summary": "Reject accounting transaction", "permission": "ACC.APPROVE"},
+    ],
+    "CatalogItem": [
+        {"action": "archive", "summary": "Archive catalog item", "permission": "CAT.MANAGE"},
+        {"action": "activate", "summary": "Activate catalog item", "permission": "CAT.MANAGE"},
+    ],
+}
+
+# Service code mapping for automatic READ permission assignment for list/GET/HEAD endpoints.
+SERVICE_CODE = {
+    "inventory": "INV",
+    "sales": "SALES",
+    "print": "PRINT",
+    "accounting": "ACC",
+    "catalog": "CAT",
+    "po": "PO",
+    "repairs": "RPR",
+}
+
 SORT_PARAM_MAP = {
     "Product": "SortProductsParam",
     "Order": "SortOrdersParam",
@@ -103,6 +148,8 @@ def build_openapi_spec() -> Dict[str, Any]:
         "/iam/auth/me": {"get": {"summary": "Current user", "responses": {"200": {"description": "OK"}}}},
     }
 
+    entity_meta = {e[0]: (e[1], e[2], e[3]) for e in ENTITIES}
+
     for schema_name, domain, coll, id_param in ENTITIES:
         list_path = f"/{domain}/{coll}"
         paths[list_path] = {
@@ -158,197 +205,37 @@ def build_openapi_spec() -> Dict[str, Any]:
             },
         }
 
-        # Domain-specific action endpoints
-        if schema_name == "PrintJob":
+        # Add action endpoints from registry
+        actions = ACTION_REGISTRY.get(schema_name, [])
+        if actions:
             action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("start", "Start print job"),
-                ("complete", "Complete print job"),
-            ]:
-                act_path = f"{single_path}/{action}"
+            for spec in actions:
+                act_path = f"{single_path}/{spec['action']}"
                 paths[act_path] = {
                     "post": {
-                        "summary": summary,
+                        "summary": spec["summary"],
                         "parameters": action_common_params,
                         "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PrintJob"}}}},
+                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": f"#/components/schemas/{schema_name}"}}}},
                             "400": {"$ref": "#/components/responses/BadRequest"},
                             "404": {"$ref": "#/components/responses/NotFound"},
                         },
-                    }
-                }
-        elif schema_name == "Order":
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("approve", "Approve order"),
-                ("fulfill", "Fulfill order"),
-                ("complete", "Complete order"),
-                ("cancel", "Cancel order"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Order"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
-                    }
-                }
-        elif schema_name == "PurchaseOrder":
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("receive", "Receive purchase order"),
-                ("close", "Close purchase order"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PurchaseOrder"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
-                    }
-                }
-        elif schema_name == "RepairTicket":
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("start", "Start repair ticket"),
-                ("complete", "Complete repair ticket"),
-                ("close", "Close repair ticket"),
-                ("cancel", "Cancel repair ticket"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RepairTicket"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
-                    }
-                }
-        elif schema_name == "AccountingTransaction":
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("approve", "Approve accounting transaction"),
-                ("pay", "Pay accounting transaction"),
-                ("reject", "Reject accounting transaction"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AccountingTransaction"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
-                    }
-                }
-        elif schema_name == "CatalogItem":
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("archive", "Archive catalog item"),
-                ("activate", "Activate catalog item"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CatalogItem"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
+                        "x-required-permissions": [spec["permission"]],
                     }
                 }
 
-    # Inject x-required-permissions based on simple heuristics from path patterns
-    for path, ops in paths.items():
-        for method, od in ops.items():
-            # Skip if already annotated
-            if 'x-required-permissions' in od:
-                continue
-            perms: list[str] = []
-            if path.startswith('/iam/auth'):
-                perms = []  # auth open
-            elif '/print/jobs' in path:
-                if path.endswith('/start'):
-                    perms = ['PRINT.START']
-                elif path.endswith('/complete'):
-                    perms = ['PRINT.COMPLETE']
-                else:
-                    perms = ['PRINT.READ'] if method in ('get','head') else []
-            elif '/sales/orders' in path:
-                if path.endswith('/approve'):
-                    perms = ['SALES.APPROVE']
-                elif path.endswith('/fulfill'):
-                    perms = ['SALES.FULFILL']
-                elif path.endswith('/complete'):
-                    perms = ['SALES.COMPLETE']
-                elif path.endswith('/cancel'):
-                    perms = ['SALES.CANCEL']
-                else:
-                    perms = ['SALES.READ'] if method in ('get','head') else []
-            elif '/po/purchase-orders' in path:
-                if path.endswith('/receive'):
-                    perms = ['PO.RECEIVE']
-                elif path.endswith('/close'):
-                    perms = ['PO.CLOSE']
-                else:
-                    perms = ['PO.READ'] if method in ('get','head') else []
-            elif '/repairs/tickets' in path:
-                if any(path.endswith(suf) for suf in ('/start','/complete','/close','/cancel')):
-                    perms = ['RPR.MANAGE']
-                else:
-                    perms = ['RPR.READ'] if method in ('get','head') else []
-            elif '/accounting/transactions' in path:
-                if path.endswith('/approve'):
-                    perms = ['ACC.APPROVE']
-                elif path.endswith('/pay'):
-                    perms = ['ACC.PAY']
-                elif path.endswith('/reject'):
-                    perms = ['ACC.APPROVE']
-                else:
-                    perms = ['ACC.READ'] if method in ('get','head') else []
-            elif '/inventory/products' in path:
-                perms = ['INV.READ'] if method in ('get','head') else []
-            elif '/catalog/items' in path:
-                perms = ['CAT.READ'] if method in ('get','head') else []
-            elif '/vendors' in path:
-                perms = ['PO.READ'] if method in ('get','head') else []
-            # Only attach if determined
-            if perms:
-                od['x-required-permissions'] = perms
-            action_common_params = [{"name": id_param, "in": "path", "required": True, "schema": {"type": "integer"}}]
-            for action, summary in [
-                ("start", "Start repair ticket"),
-                ("complete", "Complete repair ticket"),
-                ("close", "Close repair ticket"),
-                ("cancel", "Cancel repair ticket"),
-            ]:
-                act_path = f"{single_path}/{action}"
-                paths[act_path] = {
-                    "post": {
-                        "summary": summary,
-                        "parameters": action_common_params,
-                        "responses": {
-                            "200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RepairTicket"}}}},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                        },
-                    }
-                }
+    # Assign read permissions automatically for list & single resource endpoints
+    for schema_name, (domain, coll, id_param) in entity_meta.items():
+        service = SERVICE_CODE.get(domain)
+        if not service:
+            continue
+        list_path = f"/{domain}/{coll}"
+        single_path = f"{list_path}/{{{id_param}}}"
+        for meth in ("get", "head"):
+            if meth in paths.get(list_path, {}):
+                paths[list_path][meth].setdefault("x-required-permissions", [f"{service}.READ"])
+            if meth in paths.get(single_path, {}):
+                paths[single_path][meth].setdefault("x-required-permissions", [f"{service}.READ"])
 
     # Add operationIds & tags
     tag_desc: Dict[str, str] = {}
