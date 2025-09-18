@@ -7,7 +7,7 @@ The 3D Store backend is a Flask application exposing a multi-tenant, policy‑dr
 - Decorators: `@require_permissions` and `@audit_log` for authorization gates & mutation auditing.
 - Services: `policy` (permission aggregation, branch scoping, owner safeguards), `audit` (low-level audit writer).
 - Persistence: SQLAlchemy ORM, single metadata (`authz` + `audit`) using SQLite (dev) / pluggable via `DATABASE_URL`.
-- Docs: Hand-authored OpenAPI spec + Redoc viewer.
+- Docs: Programmatic OpenAPI builder with deterministic hash + Redoc viewer.
 - Caching: List endpoints expose ETag + Last-Modified validators (see `caching-and-conditional-requests.md`).
 
 ## Entity Relationships
@@ -45,6 +45,11 @@ Add new domain modules by:
 3. Seeding new permissions + attaching them to roles (do NOT over-broaden existing roles without review).
 4. Implementing endpoints gated by `@require_permissions`.
 5. Adding policy enforcement + audits.
-6. Updating OpenAPI spec + examples.
+6. Updating the OpenAPI builder (centralized, programmatic):
+  - Add entity/action metadata in `backend/app/openapi_parts/constants.py` (ENTITIES, ACTION_REGISTRY).
+  - Domain paths are built via per-service modules in `backend/app/openapi_parts/domains/` using the common `_common.build_service_paths`.
+  - The canonical builder is `backend/app/openapi_builder.py` (publicly re-exported by `app/openapi.py`).
+  - Verify determinism: `python -m backend.scripts.generate_spec --check` (set `PYTHONPATH=backend`).
+  - Update snapshot hash intentionally when planned changes occur: `--update-hash`.
 
 See `authz-model.md` for deep IAM details.

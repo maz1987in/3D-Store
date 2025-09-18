@@ -29,7 +29,7 @@ Refer to `.github/copilot-instructions.md` for architectural invariants.
 See `backend/README.md` ("List Endpoints: Multi-Field Sorting" & "Conditional Caching") for full details and allowed fields.
 
 ### OpenAPI & Determinism
-The spec is generated programmatically (no static YAML) for safety and reproducibility. A hash snapshot (`tests/openapi_spec_hash.txt`) guards against unintended drift. Extend via `backend/app/openapi_clean.py` and update the hash intentionally when planned changes occur.
+The spec is generated programmatically (no static YAML) for safety and reproducibility. A hash snapshot (`tests/openapi_spec_hash.txt`) guards against unintended drift. See `docs/backend/openapi-builder.md` for how to extend (`openapi_builder.py`, `openapi_parts/**`) and how to update the snapshot intentionally.
 
 ## Continuous Integration
 Workflow: `.github/workflows/ci.yml`

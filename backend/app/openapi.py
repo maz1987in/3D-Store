@@ -1,6 +1,8 @@
-"""Shim module re-exporting clean OpenAPI builder.
-Temporary while replacing corrupted previous implementation.
+"""Public import for the OpenAPI builder.
+
+Keeps a stable import path while the implementation lives in
+`openapi_builder.py`.
 """
-from .openapi_clean import build_openapi_spec  # noqa: F401
+from .openapi_builder import build_openapi_spec  # noqa: F401
 
 __all__ = ["build_openapi_spec"]

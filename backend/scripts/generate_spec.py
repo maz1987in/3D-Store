@@ -31,7 +31,7 @@ try:
     from app.openapi import build_openapi_spec  # type: ignore
 except ImportError:
     # fallback if module path differs
-    from app.openapi_clean import build_openapi_spec  # type: ignore
+    from app.openapi_builder import build_openapi_spec  # type: ignore
 
 
 def compute_spec_and_hash():

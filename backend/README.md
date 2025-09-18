@@ -69,7 +69,7 @@ Single-resource conditional validators currently implemented for:
 Other domains (orders, print jobs, repairs, purchase orders, accounting transactions) currently provide validators only on list endpoints; single-resource conditional support can be added using the same pattern (compute ETag + latest timestamp, unify GET+HEAD logic) when needed.
 
 ## OpenAPI Spec Notes
-The lightweight programmatic builder (`app/openapi_clean.py` exported via `app/openapi.py`) generates a deterministic minimal spec:
+The lightweight programmatic builder (`app/openapi_builder.py` exported via `app/openapi.py`) generates a deterministic minimal spec:
 - Auth endpoints: `/iam/auth/login`, `/iam/auth/me`
 - For each core entity: list + single GET/HEAD with caching headers (`ETag`, `Last-Modified`, `X-Last-Modified-ISO`).
 - Reusable parameter components: `LimitParam`, `OffsetParam`, and per-entity `Sort*Param` objects.
@@ -165,7 +165,7 @@ Planned Enhancements:
 - CI gate comparing previous hash on PRs to force reviewer acknowledgement.
 
 ### Declarative Action Registry (Implemented)
-Action endpoints and their permissions are now generated from a centralized registry inside `app/openapi_clean.py`:
+Action endpoints and their permissions are now generated from a centralized registry inside `app/openapi_parts/constants.py`:
 ```python
 ACTION_REGISTRY = {
 	"Order": [

@@ -4,7 +4,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.openapi_clean import ACTION_REGISTRY  # type: ignore
+from app.openapi_parts.constants import ACTION_REGISTRY  # type: ignore
 from app.constants.permissions import ROLE_PRESETS  # type: ignore
 
 
