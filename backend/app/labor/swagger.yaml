@@ -1,0 +1,475 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: labor
+  description: Operations about Labor
+
+paths:
+  /labors/:
+    get:
+      tags:
+      - labor
+      summary: Get All Labors
+      description: This can only be done by the logged in user.
+      operationId: GetLabors
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  labors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Labor'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - labor
+      summary: Create labor
+      description: This can only be done by the logged in user.
+      operationId: CreateLabor
+      requestBody:
+        description: Create labor object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtLabor'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /labors/{id}:
+    get:
+      tags:
+      - labor
+      summary: Get labor
+      description: This can only be done by the logged in user.
+      operationId: getLaborById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  labors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Labor'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - labor
+      summary: Delete labor
+      description: This can only be done by the logged in user.
+      operationId: delete_labor
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - labor
+      summary: Updated Labor
+      description: This can only be done by the logged in user.
+      operationId: update_labor
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated labor object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtLabor'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /labors/category/:
+    get:
+      tags:
+      - labor_category
+      summary: Get All Labor Categories
+      description: This can only be done by the logged in user.
+      operationId: GetLaborCategories
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LaborCategory'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - labor_category
+      summary: Create labor category
+      description: This can only be done by the logged in user.
+      operationId: CreateLaborCategory
+      requestBody:
+        description: Create labor category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtLaborCategory'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /labors/category/{id}:
+    get:
+      tags:
+      - labor_category
+      summary: Get labor category
+      description: This can only be done by the logged in user.
+      operationId: getLaborCategoryById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LaborCategory'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - labor_category
+      summary: Delete labor category
+      description: This can only be done by the logged in user.
+      operationId: delete_labor_category
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - labor_category
+      summary: Updated Labor Category
+      description: This can only be done by the logged in user.
+      operationId: update_labor_category
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated labor category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtLaborCategory'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+components:
+  schemas:
+    Labor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/LaborCategory'
+        unit:
+          type: string
+          enum:
+            - hour
+            - day
+            - week
+            - month
+            - year
+        unit_price:
+          type: number
+          format: float
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    
+    Store3dtLabor:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        category_id:
+          type: string
+          format: uuid
+        unit:
+          type: string
+          enum:
+            - hour
+            - day
+            - week
+            - month
+            - year
+        unit_price:
+          type: number
+          format: float
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+
+    LaborCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        parent_id:
+          type: string
+          format: uuid
+        order:
+          type: integer
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+
+    Store3dtLaborCategory:
+      type: object
+      properties:
+        parent_id:
+          type: string
+          format: uuid
+        order:
+          type: integer
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

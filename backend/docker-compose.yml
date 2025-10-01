@@ -1,0 +1,78 @@
+# docker-comstore3de up -d
+
+version: '3'
+
+services:
+  db:
+    container_name: store3d_db
+    #image: mariadb:10.11
+    image: mysql:8.0.26
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: database
+      #MYSQL_USER: user
+      #MYSQL_PASSWORD: password
+      MYSQL_ROOT_HOST: '%' # allow root login from anywhere
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - store3d-net
+    ports:
+      - "3306:3306"
+  redis:
+    container_name: store3d_redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - redis-data:/data
+    networks:
+      - store3d-net
+
+  backend:
+    container_name: store3d_backend
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      APP_ENV: production
+      DB_TYPE: mysql
+      DB_HOST: db
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      DB_DATABASE_NAME: database
+      DB_POOL_RECYCLE: 3600
+      DB_POOL_SIZE: 50
+      DB_POOL_TIMEOUT: 30
+      DB_POOL_MAX_OVERFLOW: 60
+      CACHE_TYPE: RedisCache
+      CACHE_REDIS_HOST: redis
+      CACHE_REDIS_PORT: 6379
+      CACHE_REDIS_DB: 0
+      CACHE_REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      #CACHE_REDIS_URL: redis://redis:6379/0
+      SCHEDULER_ENABLED: true
+      SCHEDULER_MODE: redis
+      SCHEDULER_TIMEZONE: Asia/Muscat
+      SCHEDULER_REDIS_HOST: redis
+      SCHEDULER_REDIS_PORT: 6379
+      SCHEDULER_REDIS_DB: 1
+      SCHEDULER_REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      RATELIMIT_STORAGE_URL: redis://redis:6379/2
+
+    depends_on:
+      - db
+      - redis
+    #volumes:
+    #  - store3d/uploads:/home/store3d/uploads
+    networks:
+      - store3d-net
+networks:
+  store3d-net:
+volumes:
+  db-data:
+  redis-data:

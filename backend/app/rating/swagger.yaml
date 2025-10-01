@@ -1,0 +1,225 @@
+openapi: 3.0.1
+info:
+  title: Product Rating API
+  description: API for managing product ratings
+  version: 1.0.0
+tags:
+  - name: rating
+    description: Operations about Product Ratings
+
+paths:
+  /products/{product_id}/ratings:
+    get:
+      tags:
+        - rating
+      summary: Get all ratings for a product
+      operationId: getProductRatings
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The product ID
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ratings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rating'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - rating
+      summary: Add a rating to a product
+      operationId: addProductRating
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingInput'
+      responses:
+        201:
+          description: Rating created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/{product_id}/ratings/{rating_id}:
+    patch:
+      tags:
+        - rating
+      summary: Update a product rating
+      operationId: updateProductRating
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: rating_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingInput'
+      responses:
+        200:
+          description: Rating updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - rating
+      summary: Delete a product rating
+      operationId: deleteProductRating
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: rating_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Rating deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Rating:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    RatingInput:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      required:
+        - score
+
+    Global:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

@@ -1,0 +1,298 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: favorite
+  description: Operations about Favorite
+
+paths:
+  /favorites/:
+    get:
+      tags:
+      - favorite
+      summary: Get All Favorites
+      description: This can only be done by the logged in user.
+      operationId: GetFavorites
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Favorite'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - favorite
+      summary: Add Favorite
+      description: This can only be done by the logged in user.
+      operationId: AddFavorite
+      requestBody:
+        description: Add favorite object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Favorite'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /favorites/{favoriteId}:
+    get:
+      tags:
+      - favorite
+      summary: Get favorite
+      description: This can only be done by the logged in user.
+      operationId: getFavoriteById
+      parameters:
+      - name: favoriteId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Favorite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - favorite
+      summary: Delete favorite
+      description: This can only be done by the logged in user.
+      operationId: deleteFavorite
+      parameters:
+      - name: favoriteId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /favorites/filter/{user_id}:
+    get:
+      tags:
+      - favorite
+      summary: Get favorite
+      description: This can only be done by the logged in user.
+      operationId: getFavoriteByUserID
+      parameters:
+      - name: user_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Favorite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /favorites/filter/{user_id}/{model_type}:
+    get:
+      tags:
+      - favorite
+      summary: Get favorite
+      description: This can only be done by the logged in user.
+      operationId: getFavoriteByUserIDAndModelType
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Favorite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /favorites/filter/{user_id}/{model_type}/{model_id}:
+    get:
+      tags:
+      - favorite
+      summary: Get favorite
+      description: This can only be done by the logged in user.
+      operationId: getFavoriteByUserIDAndModelTypeAndId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Favorite'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: string
+          example: users
+        model_type:
+          type: string
+          example: users
+        model_id:
+          type: string
+          example: 111
+        create_date:
+          type: string
+          format: date-time
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

@@ -1,41 +1,87 @@
-# 3D Store Documentation
+# store3d backend
 
-This directory contains structured documentation for the 3D Store backend (Flask) and planned Angular frontend authorization layer.
+~/store3d-backend
 
-## Index
+    |-- __init__.py
+    |-- run.py	    	    # our run app file
+    |-- config.py   	    # our config file with database connection
+    |-- .env                # env url (db url)
+    # Our Application Modules
+    |-- /app
+        |-- __init__.py     # blueprint registration
+        |-- /users
+            |-- __init__.py # empty file
+            |-- model.py    # database table
+            |-- service.py  # service and logic layer between database and api
+            |-- routes.py   # routes of the api methods
+        |-- /setting
+            |-- __init__.py # empty file
+            |-- model.py    # database table
+            |-- service.py  # service and logic layer between database and api
+            |-- routes.py   # routes of the api methods
+    |-- /...
+        |-- __init__.py
+            |-- ....py
+            |-- ....py
+    |__ ..
+    |__ ..
+    |__ ..
+    |__ .
 
-- [Architecture Overview](architecture.md)
-- [Authorization Model](authz-model.md)
-- [Permissions & Roles Matrix](permissions-roles.md)
-- [Seeding & Drift Governance](seeding.md)
-- [API Reference (IAM & Auth)](api-reference.md)
-- [Audit Logging & Observability](audit-logging.md)
-- [Error Handling Contract](error-handling.md)
-- [Configuration & Feature Flags](configuration.md)
-- [Testing Strategy](testing.md)
-- [Frontend AuthZ Integration](frontend-authz.md)
-- [Glossary](glossary.md)
-- [Changelog](changelog.md)
-- [Roadmap](roadmap.md)
 
-## Quick Start
+**to use the code:**
 
-1. Create virtualenv and install backend requirements:
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
-2. Export `JWT_SECRET_KEY` (optional for dev) or let default apply.
-3. Run the app (example minimal runner you add):
-   ```bash
-   flask --app backend.app:create_app run --reload
-   ```
-4. View OpenAPI spec at: `GET /openapi.json` and human docs at `/docs`.
+1. clone the restore3ditory
+2. pull the code
+3. use develop branch
+4. make your changes
+5. push the code to development branch
 
-## Key Tenets
-- Principle of Least Privilege via granular permission codes `SERVICE.ACTION`.
-- Union-based effective permissions (direct roles + group roles).
-- Branch scoping (per-group) surfaces `branch_ids[]` in JWT for filtering.
-- Standardized JSON error envelope.
-- Audit logging for all IAM mutations (now including diff snapshots for certain updates).
 
-See individual pages for deep detail.
+# Python virtual environment
+```
+#pip install virtualenv
+#virtualenv env
+# windows
+# python -m virtualenv env
+# New
+python -m venv env
+```
+In windows
+```
+Set-ExecutionPolicy Unrestricted -Scope Process # run this command in powershell if you get error
+```
+Then
+```
+.\env\Scripts\activate
+```
+Others
+```
+source env/bin/activate
+```
+
+TO close ENV
+```
+deactivate
+```
+
+To install all lib
+```
+pip install -r requirements.txt
+```
+
+# Docker
+```
+docker build . --tag store3d-api:latest
+```
+# # Docker Comstore3de
+```
+docker-comstore3de up -d
+```
+
+# Running Migration
+```
+alembic upgrade head
+```
+
+

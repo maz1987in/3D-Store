@@ -1,0 +1,458 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: templates_content
+  description: Operations about Templates Content
+
+paths:
+  /templates_contents/:
+    get:
+      tags:
+      - templates_content
+      summary: Get All TemplatesContents
+      description: This can only be done by the logged in user.
+      operationId: GetTemplatesContents
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates_contents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TemplatesContent'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - templates_content
+      summary: Add TemplatesContent
+      description: This can only be done by the logged in user.
+      operationId: AddTemplatesContent
+      requestBody:
+        description: Add templates_content object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplatesContent'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /templates_contents/{id}:
+    get:
+      tags:
+      - templates_content
+      summary: Get templates_content
+      description: This can only be done by the logged in user.
+      operationId: getTemplatesContentById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - templates_content
+      summary: Delete templates_content
+      description: This can only be done by the logged in user.
+      operationId: deleteTemplatesContent
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - templates_content
+      summary: Updated TemplatesContent
+      description: This can only be done by the logged in user.
+      operationId: updateTemplatesContent
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated templates_content object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplatesContent'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /templates_contents/key/{key}/id/{id}:
+    delete:
+      tags:
+      - templates_content
+      summary: Delete All templates_content by key
+      description: This can only be done by the logged in user.
+      operationId: deleteAllTemplatesContentByUserId
+      parameters:
+      - name: key
+        in: path
+        description: The key that needs to be deleted
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /templates_contents/model/{model_type}:
+    get:
+      tags:
+      - templates_content
+      summary: Get templates_content
+      description: This can only be done by the logged in model.
+      operationId: getTemplatesContentByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates_contents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TemplatesContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /templates_contents/model/{model_type}/{model_op}:
+    get:
+      tags:
+      - templates_content
+      summary: Get templates_content
+      description: This can only be done by the logged in model.
+      operationId: getTemplatesContentByModelTypeAndOp
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_op
+        in: path
+        description: The model operation that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /templates_contents/owner:
+    get:
+      tags:
+      - templates_content
+      summary: Get templates_content
+      description: This can only be done by the logged in owner.
+      operationId: getTemplatesContentByOwner
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /templates_contents/media_type:
+    get:
+      tags:
+      - templates_content
+      summary: Get templates_content
+      description: This can only be done by the logged in media_type.
+      operationId: getTemplatesContentMediaType
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    TemplatesContent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        model_type:
+          type: string
+        model_op:
+          type: string
+        model_id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            code:
+              type: string
+            logo:
+              type: string
+            title:
+              type: object
+              properties:
+                ar:
+                  type: string
+                en:
+                  type: string
+            description:
+              type: object
+              properties:
+                ar:
+                  type: string
+                en:
+                  type: string
+        subject:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+        
+
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

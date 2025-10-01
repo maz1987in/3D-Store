@@ -1,0 +1,635 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: product
+  description: Operations about Product
+
+paths:
+  /products/:
+    get:
+      tags:
+      - product
+      summary: Get All Products
+      description: This can only be done by the logged in user.
+      operationId: GetProducts
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                    filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - product
+      summary: Create product
+      description: This can only be done by the logged in user.
+      operationId: CreateProduct
+      requestBody:
+        description: Create product object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtProduct'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /products/{id}:
+    get:
+      tags:
+      - product
+      summary: Get product
+      description: This can only be done by the logged in user.
+      operationId: getProductById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - product
+      summary: Delete product
+      description: This can only be done by the logged in user.
+      operationId: delete_product
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          d$ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - product
+      summary: Updated Product
+      description: This can only be done by the logged in user.
+      operationId: update_product
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated product object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtProduct'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          d$ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    
+  /products/{id}/reindex:
+    get:
+      tags:
+      - product
+      summary: Reindex product images and attachments
+      description: This can only be done by the logged in user.
+      operationId: reindexItem
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be reindex
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/upload/{type}/{id}/{order}:
+    post:
+      tags:
+      - product
+      summary: upload Item image or attachments
+      description: This can only be done by the logged in user.
+      operationId: uploadItemImageOrAttachment
+      parameters:
+      - name: type
+        in: path
+        description: The type of image or attachment
+        required: true
+        schema:
+          type: string
+          enum:
+            - image
+            - attachment
+      - name: id
+        in: path
+        description: The id of the product
+        required: true
+        schema:
+          type: string
+      - name: order
+        in: path
+        description: The order of the image or attachment
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        description: Updated product object
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /products/upload/{type}/{id}/{order}/new:
+    post:
+      tags:
+      - product
+      summary: upload Item image or attachments for new product
+      description: This can only be done by the logged in user.
+      operationId: uploadItemImageOrAttachmentForNewItem
+      parameters:
+      - name: type
+        in: path
+        description: The type of image or attachment
+        required: true
+        schema:
+          type: string
+          enum:
+            - image
+            - attachment
+      - name: id
+        in: path
+        description: The ganarate id of the uploaded image or attachment for new product (send this id when create new product in 'media_id')
+        required: true
+        schema:
+          type: string
+      - name: order
+        in: path
+        description: The order of the image or attachment
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        description: Updated product object
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/upload/{id}:
+    delete:
+      tags:
+      - product
+      summary: delete Item image or attachments
+      description: This can only be done by the logged in user.
+      operationId: deleteItemImageOrAttachment
+      parameters:
+      - name: id
+        in: path
+        description: The id of the product
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/{product_id}/shipping-cities:
+    get:
+      tags:
+      - product
+      summary: Get shipping cities for a product
+      description: Get the list of cities where the product can be shipped
+      operationId: getProductShippingCities
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Product ID
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shipping_cities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductShippingCity'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - product
+      summary: Update shipping cities for a product
+      description: Set the list of cities where the product can be shipped
+      operationId: updateProductShippingCities
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/{product_id}/shipping-availability/{city_name}:
+    get:
+      tags:
+      - product
+      summary: Check if product can be shipped to a city
+      description: Check if the product can be shipped to the specified city
+      operationId: checkProductShippingAvailability
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Product ID
+        - name: city_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: City name
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        price:
+          type: number
+          format: float
+        images:
+          type: string
+          format: JSON
+        attachments:
+          type: string
+          format: JSON
+        category_id:
+          type: string
+          format: uuid
+        supplier_id:
+          type: string
+          format: uuid
+        unit:
+          type: string
+          enum:
+            - piece
+            - kg
+            - liter
+        quantity:
+          type: number
+        min_quantity:
+          type: number
+        title:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        description:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+        shipping_cities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductShippingCity'
+    ProductShippingCity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        city_id:
+          type: string
+          format: uuid
+        shipping_cost:
+          type: number
+          format: float
+        is_active:
+          type: boolean
+        create_date:
+          type: string
+          format: date-time
+        city:
+          type: object
+          description: City object
+    
+    Store3dtProduct:
+      type: object
+      properties:
+        price:
+          type: number
+          format: float
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+        attachments:
+          type: array
+          items:
+            type: string
+            format: binary
+        category_id:
+          type: string
+          format: uuid
+        supplier_id:
+          type: string
+          format: uuid
+        unit:
+          type: string
+          enum:
+            - piece
+            - kg
+            - liter
+        quantity:
+          type: number
+        min_quantity:
+          type: number
+        average_rating:
+          type: number
+          format: float
+        title:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        description:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

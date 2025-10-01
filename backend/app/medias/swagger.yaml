@@ -1,0 +1,571 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: media
+  description: Operations about Media
+
+paths:
+  /medias/:
+    get:
+      tags:
+      - media
+      summary: Get All Medias
+      description: This can only be done by the logged in user.
+      operationId: GetMedias
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page 
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - media
+      summary: Add Media
+      description: This can only be done by the logged in user.
+      operationId: AddMedia
+      requestBody:
+        description: Add media object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtMedia'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /medias/{mediaId}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaById
+      parameters:
+      - name: mediaId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - media
+      summary: Delete media
+      description: This can only be done by the logged in user.
+      operationId: delete_media
+      parameters:
+      - name: mediaId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: Media not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - media
+      summary: Updated Media
+      description: This can only be done by the logged in user.
+      operationId: update_media
+      parameters:
+      - name: mediaId
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated media object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtMedia'
+        required: true
+      responses:
+        200:
+          description: media
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: media not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /medias/model/{model_type}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page 
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/model/{model_type}/{model_id}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByModelTypeAndId
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page 
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/files-upload/{disk}/{model_type}:
+    post:
+      tags:
+      - media
+      summary: Store3dt media
+      description: This can only be done by the logged in user.
+      operationId: postMediaByModelType
+      parameters:
+      - name: disk
+        in: path
+        description: The disk to store
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: mediaId supplied
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/files-upload/{disk}/{model_type}/{model_id}:
+    post:
+      tags:
+      - media
+      summary: Store3dt media
+      description: This can only be done by the logged in user.
+      operationId: postMediaByModelTypeAndId
+      parameters:
+      - name: disk
+        in: path
+        description: The disk to store
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/file/{disk}/{fileid}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByFolderAndId
+      parameters:
+      - name: disk
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: fileid
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+        404:
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        model_type:
+          type: string
+          example: users
+        model_id:
+          type: integer
+          format: int64
+        collection_name:
+          type: string
+        name:
+          type: string
+        mime_type:
+          type: string
+        disk:
+          type: string
+        size:
+          type: string
+        order_column:
+          type: integer
+          format: int32
+        file:
+          type: string
+        custom_properties:
+          type: string
+          format: JSON
+        create_date:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time        
+    
+    Store3dtMedia:
+      type: object
+      properties:
+        model_type:
+          type: string
+          example: users
+        model_id:
+          type: integer
+          format: int64
+        collection_name:
+          type: string
+        disk:
+          type: string
+        order_column:
+          type: integer
+          format: int32
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+        custom_properties:
+          type: string
+          format: JSON
+
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: array
+          items:
+            type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

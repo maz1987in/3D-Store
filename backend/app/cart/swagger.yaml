@@ -1,0 +1,392 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: cart
+  description: Operations about Cart
+
+paths:
+  /carts/:
+    get:
+      tags:
+      - cart
+      summary: Get All Carts
+      description: This can only be done by the logged in user.
+      operationId: GetCarts
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  carts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cart'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - cart
+      summary: Create cart
+      description: This can only be done by the logged in user.
+      operationId: CreateCart
+      requestBody:
+        description: Create cart object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtCart'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /carts/{id}:
+    get:
+      tags:
+      - cart
+      summary: Get cart
+      description: This can only be done by the logged in user.
+      operationId: getCartById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  carts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cart'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - cart
+      summary: Delete cart
+      description: This can only be done by the logged in user.
+      operationId: delete_cart
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - cart
+      summary: Updated Cart
+      description: This can only be done by the logged in user.
+      operationId: update_cart
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated cart object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtCart'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /carts/{id}/items:
+    get:
+      tags:
+      - cart
+      summary: Get All Items
+      description: This can only be done by the logged in user.
+      operationId: GetItems
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - cart
+      summary: Create Item
+      description: This can only be done by the logged in user.
+      operationId: CreateItem
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Create item object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Item'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /carts/{id}/items/{item_id}:
+    get:
+      tags:
+      - cart
+      summary: Get Item
+      description: This can only be done by the logged in user.
+      operationId: getItemById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      - name: item_id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - cart
+      summary: Delete Item
+      description: This can only be done by the logged in user.
+      operationId: delete_item
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      - name: item_id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        price:
+          type: number
+        quantity:
+          type: number
+        service_id:
+          type: string
+          format: uuid
+        service_type:
+          type: string
+        cart_id:
+          type: string
+          format: uuid
+        title:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

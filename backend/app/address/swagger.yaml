@@ -1,0 +1,297 @@
+openapi: 3.0.1
+info:
+  title: Store3d API - Shipping Address
+  description: API for managing user shipping addresses
+  version: 1.0.0
+servers:
+  - url: https://store3d-api.example.com/store3d/api/v1
+  - url: /store3d/api/v1
+security:
+  - basicAuth: []
+  - JWT: []
+tags:
+  - name: address
+    description: Operations about Shipping Address
+
+paths:
+  /address/:
+    get:
+      tags:
+        - address
+      summary: Get all shipping addresses for the current user
+      operationId: getAllAddresses
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  addresses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ShippingAddress'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - address
+      summary: Add a new shipping address
+      operationId: addAddress
+      requestBody:
+        description: Shipping address object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShippingAddressInput'
+      responses:
+        201:
+          description: Address created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address_id:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /address/{id}:
+    get:
+      tags:
+        - address
+      summary: Get a shipping address by ID
+      operationId: getAddressById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  addresses:
+                    $ref: '#/components/schemas/ShippingAddress'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+        - address
+      summary: Update a shipping address
+      operationId: updateAddress
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated shipping address object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShippingAddressInput'
+      responses:
+        200:
+          description: Address updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - address
+      summary: Delete a shipping address
+      operationId: deleteAddress
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Address deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /address/validate-shipping:
+    post:
+      tags:
+        - address
+      summary: Validate if products can be shipped to the address city
+      operationId: validateShippingAddressForProducts
+      requestBody:
+        description: Address and product IDs to validate shipping availability
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address_id:
+                  type: string
+                  format: uuid
+                product_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+              required:
+                - address_id
+                - product_ids
+      responses:
+        200:
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  unavailable_products:
+                    type: array
+                    items:
+                      type: string
+                  city:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    ShippingAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        phone:
+          type: string
+        label:
+          type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    ShippingAddressInput:
+      type: object
+      properties:
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        phone:
+          type: string
+        label:
+          type: string
+      required:
+        - address_line1
+        - city
+        - country
+
+    Global:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

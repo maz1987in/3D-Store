@@ -1,0 +1,34 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: https://nasaq-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: login
+  description: Operations about login
+- name: signup
+  description: Operations about signup
+- name: email
+  description: Operations about email
+- name: user
+  description: Operations about user
+- name: media
+  description: Operations about Media
+- name: payment
+  description: Operations about Payment
+- name: setting
+  description: Operations about Setting
+- name: category
+  description: Operations about Category

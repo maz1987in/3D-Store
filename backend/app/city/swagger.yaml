@@ -1,0 +1,331 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: city
+  description: Operations about City
+
+paths:
+  /cities/:
+    get:
+      tags:
+      - city
+      summary: Get All Cities
+      description: Get all cities with optional filtering
+      operationId: GetCities
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: Items per page
+        - in: query
+          name: sort_by
+          schema:
+            type: string
+          description: Sort by field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+            - asc
+            - desc
+          description: Sort order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,Muscat&country,eq,Oman|, operation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/City'
+                  filter:
+                    $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags:
+      - city
+      summary: Create city
+      description: This can only be done by the logged in user.
+      operationId: CreateCity
+      requestBody:
+        description: Create city object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtCity'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /cities/active:
+    get:
+      tags:
+      - city
+      summary: Get Active Cities
+      description: Get only active cities for public use
+      operationId: GetActiveCities
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/City'
+
+  /cities/{id}:
+    get:
+      tags:
+      - city
+      summary: Get city
+      description: Get a specific city by ID
+      operationId: getCityById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/City'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+      - city
+      summary: Update city
+      description: This can only be done by the logged in user.
+      operationId: update_city
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: Updated city object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtCity'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - city
+      summary: Delete city
+      description: This can only be done by the logged in user.
+      operationId: delete_city
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    City:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        country:
+          type: string
+        is_active:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    
+    Store3dtCity:
+      type: object
+      properties:
+        code:
+          type: string
+        country:
+          type: string
+        is_active:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+      required:
+        - code
+        - name
+
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+        per_page:
+          type: integer
+        pages:
+          type: integer
+        total:
+          type: integer
+        sort_by:
+          type: string
+        sort_order:
+          type: string
+          enum:
+          - asc
+          - desc
+        queries:
+          type: array
+          items:
+            type: string
+          description: field,operator,value _exp_ | name,eq,Muscat&country,eq,Oman|, operation| eq,ne,lt,gt,le,ge,like |
+
+    Global:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

@@ -1,0 +1,488 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: fiscal_year
+  description: Operations about FiscalYear
+
+paths:
+  /fiscal_years/:
+    get:
+      tags:
+      - fiscal_year
+      summary: Get All FiscalYears
+      description: This can only be done by the logged in user.
+      operationId: GetFiscalYears
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_years:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FiscalYear'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - fiscal_year
+      summary: Create fiscal_year
+      description: This can only be done by the logged in user.
+      operationId: CreateFiscalYear
+      requestBody:
+        description: Create fiscal_year object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtFiscalYear'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /fiscal_years/{id}:
+    get:
+      tags:
+      - fiscal_year
+      summary: Get fiscal_year
+      description: This can only be done by the logged in user.
+      operationId: getFiscalYearById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_years:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FiscalYear'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - fiscal_year
+      summary: Delete fiscal_year
+      description: This can only be done by the logged in user.
+      operationId: delete_fiscal_year
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - fiscal_year
+      summary: Updated FiscalYear
+      description: This can only be done by the logged in user.
+      operationId: update_fiscal_year
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated fiscal_year object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtFiscalYear'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /fiscal_years/fiscal_periods/:
+    get:
+      tags:
+      - fiscal_period
+      summary: Get All FiscalPeriods
+      description: This can only be done by the logged in user.
+      operationId: GetFiscalPeriods
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_periods:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FiscalPeriod'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - fiscal_period
+      summary: Create fiscal_period
+      description: This can only be done by the logged in user.
+      operationId: CreateFiscalPeriod
+      requestBody:
+        description: Create fiscal_period object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtFiscalPeriod'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /fiscal_years/fiscal_periods/{id}:
+    get:
+      tags:
+      - fiscal_period
+      summary: Get fiscal_period
+      description: This can only be done by the logged in user.
+      operationId: getFiscalPeriodById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_periods:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FiscalPeriod'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - fiscal_period
+      summary: Delete fiscal_period
+      description: This can only be done by the logged in user.
+      operationId: delete_fiscal_period
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - fiscal_period
+      summary: Updated FiscalPeriod
+      description: This can only be done by the logged in user.
+      operationId: update_fiscal_period
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated fiscal_period object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtFiscalPeriod'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /fiscal_years/current-open-unlocked:
+    get:
+      tags:
+      - fiscal_year
+      summary: Get Current Year's Open and Unlocked FiscalYear
+      description: This can only be done by the logged in user.
+      operationId: GetCurrentOpenUnlockedFiscalYear
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_year:
+                    $ref: '#/components/schemas/FiscalYear'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /fiscal_years/open:
+    get:
+      tags:
+      - fiscal_year
+      summary: Get All Open FiscalYears
+      description: This can only be done by the logged in user.
+      operationId: GetOpenFiscalYears
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiscal_years:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FiscalYear'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+components:
+  schemas:
+    FiscalYear:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        company_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Open, Closed]
+        locked:
+          type: boolean
+        notes:
+          type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    
+    Store3dtFiscalYear:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Open, Closed]
+        locked:
+          type: boolean
+        notes:
+          type: string
+
+    FiscalPeriod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        company_id:
+          type: string
+          format: uuid
+        financial_year_id:
+          type: string
+          format: uuid
+        period_name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Open, Closed]
+
+    Store3dtFiscalPeriod:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+        financial_year_id:
+          type: string
+          format: uuid
+        period_name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [Open, Closed]
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

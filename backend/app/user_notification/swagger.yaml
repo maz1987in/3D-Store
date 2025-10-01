@@ -1,0 +1,452 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: user_notification
+  description: Operations about User Notification
+
+paths:
+  /user_notifications/:
+    get:
+      tags:
+      - user_notification
+      summary: Get All UserNotifications
+      description: This can only be done by the logged in user.
+      operationId: GetUserNotifications
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserNotification'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - user_notification
+      summary: Add UserNotification
+      description: This can only be done by the logged in user.
+      operationId: AddUserNotification
+      requestBody:
+        description: Add user_notification object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotification'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /user_notifications/{id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get user_notification
+      description: This can only be done by the logged in user.
+      operationId: getUserNotificationById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - user_notification
+      summary: Delete user_notification
+      description: This can only be done by the logged in user.
+      operationId: deleteUserNotification
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - user_notification
+      summary: Updated UserNotification
+      description: This can only be done by the logged in user.
+      operationId: updateUserNotification
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated user_notification object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotification'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /user_notifications/user/{user_id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get user_notification
+      description: This can only be done by the logged in user.
+      operationId: getUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserNotification'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - user_notification
+      summary: Delete All user_notification by User id
+      description: This can only be done by the logged in user.
+      operationId: deleteAllUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /user_notifications/user/count/{user_id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get Count user_notification
+      description: This can only be done by the logged in user.
+      operationId: getCountUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /user_notifications/read/{id}:
+    post:
+      tags:
+      - user_notification
+      summary: read user_notification
+      description: This can only be done by the logged in user.
+      operationId: readUserNotificationById
+      parameters:
+      - name: id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /user_notifications/read/all/{user_id}:
+    post:
+      tags:
+      - user_notification
+      summary: read all user_notification by user id
+      description: This can only be done by the logged in user.
+      operationId: readAllUserNotificationById
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+
+components:
+  schemas:
+    UserNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        user_id:
+          type: integer
+          format: int64
+        read:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

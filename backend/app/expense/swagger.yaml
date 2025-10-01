@@ -1,0 +1,555 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: expense
+  description: Operations about Expense
+
+paths:
+  /expenses/:
+    get:
+      tags:
+      - expense
+      summary: Get All Expenses
+      description: This can only be done by the logged in user.
+      operationId: GetExpenses
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Expense'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - expense
+      summary: Create expense
+      description: This can only be done by the logged in user.
+      operationId: CreateExpense
+      requestBody:
+        description: Create expense object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtExpense'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /expenses/{id}:
+    get:
+      tags:
+      - expense
+      summary: Get expense
+      description: This can only be done by the logged in user.
+      operationId: getExpenseById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expenses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Expense'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - expense
+      summary: Delete expense
+      description: This can only be done by the logged in user.
+      operationId: delete_expense
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - expense
+      summary: Updated Expense
+      description: This can only be done by the logged in user.
+      operationId: update_expense
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated expense object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtExpense'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /expenses/category/:
+    get:
+      tags:
+      - expense_category
+      summary: Get All Expense Categories
+      description: This can only be done by the logged in user.
+      operationId: GetExpenseCategories
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExpenseCategory'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - expense_category
+      summary: Create expense category
+      description: This can only be done by the logged in user.
+      operationId: CreateExpenseCategory
+      requestBody:
+        description: Create expense category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtExpenseCategory'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /expenses/category/{id}:
+    get:
+      tags:
+      - expense_category
+      summary: Get expense category
+      description: This can only be done by the logged in user.
+      operationId: getExpenseCategoryById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExpenseCategory'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - expense_category
+      summary: Delete expense category
+      description: This can only be done by the logged in user.
+      operationId: delete_expense_category
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - expense_category
+      summary: Updated Expense Category
+      description: This can only be done by the logged in user.
+      operationId: update_expense_category
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated expense category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store3dtExpenseCategory'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /expenses/upload/{id}/{order}:
+    post:
+      tags:
+      - expense
+      summary: Upload expense attachments
+      description: Upload attachments for an expense.
+      operationId: uploadExpenseAttachments
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the expense
+        required: true
+        schema:
+          type: string
+      - name: order
+        in: path
+        description: The order of the attachment
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        description: Attachments to upload
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: Successful operation
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /expenses/upload/{id}:
+    delete:
+      tags:
+      - expense
+      summary: Delete expense attachments
+      description: Delete attachments for an expense.
+      operationId: deleteExpenseAttachments
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the expense
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /expenses/{id}/reindex:
+    get:
+      tags:
+      - expense
+      summary: Reindex expense attachments
+      description: Reindex attachments for an expense.
+      operationId: reindexExpenseAttachments
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the expense
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+components:
+  schemas:
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/ExpenseCategory'
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+        fiscal_year_id:
+          type: string
+          format: uuid
+    
+    Store3dtExpense:
+      type: object
+      properties:
+        name:
+          type: string
+        category_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        fiscal_year_id:
+          type: string
+          format: uuid
+
+    ExpenseCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        parent_id:
+          type: string
+          format: uuid
+        order:
+          type: integer
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+
+    Store3dtExpenseCategory:
+      type: object
+      properties:
+        parent_id:
+          type: string
+          format: uuid
+        order:
+          type: integer
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#$ref: '#/components/responses/NotFound''
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#$ref: '#/components/responses/NotFound''
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#$ref: '#/components/responses/NotFound''
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

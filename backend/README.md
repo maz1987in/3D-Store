@@ -1,267 +1,505 @@
-# 3D Store (Scaffold)
+# 3D Store Backend
 
-Initial scaffold focusing on multi-tenant RBAC foundation.
+A comprehensive Flask-based backend application for a 3D printing store management system.
 
-## Run (Dev)
+## Features
+
+### Core Functionality
+- **User Management**: Authentication, authorization, and user profiles
+- **Product Catalog**: 3D printing services, ready-made products, and materials
+- **Order Management**: Order processing, tracking, and fulfillment
+- **Inventory Management**: Stock tracking and material management
+- **Payment Processing**: Multiple payment gateway integration
+- **Financial Management**: Invoicing, reporting, and analytics
+
+### Technical Features
+- **RESTful API**: Comprehensive REST API with proper HTTP status codes
+- **Database Optimization**: Advanced indexing strategy for performance
+- **Caching System**: Redis-based caching with optional enable/disable
+- **Middleware System**: Authentication, logging, CORS, rate limiting
+- **Error Handling**: Comprehensive error handling with custom exceptions
+- **Input Validation**: Marshmallow-based validation schemas
+- **Repository Pattern**: Clean data access layer separation
+- **Service Layer**: Business logic with single responsibility principle
+- **Monitoring & Observability**: Comprehensive logging, metrics, health monitoring, and alerting
+
+## Quick Start
+
+### Prerequisites
+- Python 3.9+
+- PostgreSQL 12+
+- Redis (optional, for caching)
+- Node.js 18+ (for frontend)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd 3D-Store/backend
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database and Redis settings
+   ```
+
+5. **Initialize database**
+   ```bash
+   # Run migrations
+   alembic upgrade head
+   
+   # Create initial data (optional)
+   python scripts/create_initial_data.py
+   ```
+
+6. **Run the application**
+   ```bash
+   python app.py
+   ```
+
+## Configuration
+
+### Environment Variables
+
+#### Database Configuration
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python - <<'PY'
-from app import create_app
-app = create_app()
-print('App created, run a WSGI server (e.g., flask run) after setting FLASK_APP.')
-PY
+DB_TYPE=postgresql
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+DB_DATABASE_NAME=store3d
+DB_HOST=localhost:5432
 ```
 
-## Next Build Steps
-- Implement migrations (alembic init) & generate tables from models.
-- Implement seed runner using `seeds/permissions_roles.py`.
-- Flesh out IAM endpoints (roles, groups, users).
-- Add JWT login and effective permission resolution logic.
-- Introduce tests for permission resolution & 403 paths.
+#### Cache Configuration
+```bash
+# Enable/disable caching
+CACHE_ENABLED=True
 
-Refer to `.github/copilot-instructions.md` for invariants.
-
-## List Endpoints: Multi-Field Sorting
-Most list endpoints now accept a unified `sort` query parameter supporting multi-field ordering:
-
-Pattern: `?sort=field1,-field2,field3`
-
-Rules:
-- Comma separated list of fields; prefix any field with `-` for descending.
-- Unknown / disallowed fields are ignored (server falls back to default tie-breaker `id`).
-- Stable: an implicit `id` ascending tie-breaker is always appended to guarantee deterministic pagination.
-
-Allowed fields by resource:
-- Inventory Products: `name, sku, updated_at, id`
-- Sales Orders: `customer_name, status, total_cents, updated_at, id`
-- Print Jobs: `status, updated_at, id`
-- Accounting Transactions: `status, amount_cents, updated_at, id`
-- Catalog Items: `price_cents, name, updated_at, id`
-- Purchase Orders: `vendor_name, status, total_cents, updated_at, id`
-- Vendors: `name, status, updated_at, id`
-- Repair Tickets: `customer_name, status, updated_at, id`
-
-Examples:
-```
-/sales/orders?sort=-updated_at,status
-/po/purchase-orders?sort=vendor_name,-total_cents
-/catalog/items?sort=price_cents,-updated_at
+# Redis configuration (when CACHE_ENABLED=True)
+CACHE_REDIS_HOST=localhost
+CACHE_REDIS_PORT=6379
+CACHE_REDIS_PASSWORD=your_redis_password
 ```
 
-## Conditional Caching (ETag / Last-Modified)
-List endpoints emit these headers to enable client-side caching & 304 validation:
-- `ETag`: Strong validator derived from a stable hash of row payload slice + pagination window.
-- `Last-Modified`: RFC1123 GMT timestamp of most recent row's `updated_at`.
-- `X-Last-Modified-ISO`: ISO8601 UTC variant (client convenience; not standard but explicit).
-
-Clients MAY send:
-- `If-None-Match: <etag>` and/or
-- `If-Modified-Since: <Last-Modified>`
-
-Server replies `304 Not Modified` with no body (HEAD always produces an empty body) when validators match current state.
-
-Single-resource conditional validators currently implemented for:
-- Vendors (`/po/vendors/{id}` GET/HEAD)
-- Inventory Products (`/inventory/products/{id}` GET/HEAD)
-
-Other domains (orders, print jobs, repairs, purchase orders, accounting transactions) currently provide validators only on list endpoints; single-resource conditional support can be added using the same pattern (compute ETag + latest timestamp, unify GET+HEAD logic) when needed.
-
-## OpenAPI Spec Notes
-The lightweight programmatic builder (`app/openapi_builder.py` exported via `app/openapi.py`) generates a deterministic minimal spec:
-- Auth endpoints: `/iam/auth/login`, `/iam/auth/me`
-- For each core entity: list + single GET/HEAD with caching headers (`ETag`, `Last-Modified`, `X-Last-Modified-ISO`).
-- Reusable parameter components: `LimitParam`, `OffsetParam`, and per-entity `Sort*Param` objects.
-
-Determinism:
-- Spec assembly orders dict keys and tags alphabetically.
-- Tests snapshot the canonical JSON hash (`tests/openapi_spec_hash.txt`). Any intentional change requires updating this file.
-
-Finite State Machine Metadata:
-- `x-transitions` extension added for `PrintJob` and `AccountingTransaction` schemas (consumed by FSM tests).
- - Additional lifecycle-enabled entities now annotated: `Order`, `PurchaseOrder`, `RepairTicket`, `CatalogItem` for status toggle, plus others as added.
-
-Action Endpoints & State Transitions:
-The spec now programmatically adds action (state transition / non-CRUD) endpoints immediately alongside single-resource paths. Example patterns:
-```
-/print/jobs/{job_id}/start        POST  (PRINT.START)
-/print/jobs/{job_id}/complete     POST  (PRINT.COMPLETE)
-/sales/orders/{order_id}/approve  POST  (SALES.APPROVE)
-/sales/orders/{order_id}/cancel   POST  (SALES.CANCEL)
-/po/purchase-orders/{po_id}/receive POST (PO.RECEIVE)
-/repairs/tickets/{ticket_id}/start POST  (RPR.MANAGE)
-/accounting/transactions/{tx_id}/approve POST (ACC.APPROVE)
-/catalog/items/{item_id}/archive  POST  (CAT.UPDATE)
+#### Security Configuration
+```bash
+SECRET_KEY=your_secret_key
+SECURITY_PASSWORD_SALT=your_salt
 ```
 
-Guidelines:
-- Use POST for idempotent-ish workflow transitions to keep semantics simple (body rarely needed; can evolve later for payloads like notes, reasons).
-- Each transition audited (`@audit_log`) with diff of status (and assignment fields when relevant) to form a tamper trail.
-- `x-transitions` sequence lists every distinct status string (not edges). Edge validation lives in server FSM validators.
+### Configuration Files
 
-`x-required-permissions` Metadata:
-Every operation is annotated (builder heuristic) so front-end can: (a) hide gated UI affordances early, (b) perform optimistic navigation permission checks before 401/403 round-trip.
+- **`.env`**: Environment variables
+- **`config.py`**: Application configuration
+- **`alembic.ini`**: Database migration configuration
 
-Rules applied by builder:
-- List + single GET/HEAD map to `<SERVICE>.READ`.
-- Print actions map to `PRINT.START` / `PRINT.COMPLETE`.
-- Order actions map individually: APPROVE / FULFILL / COMPLETE / CANCEL.
-- PurchaseOrder actions: RECEIVE, CLOSE.
-- Repairs all transitions use consolidated `RPR.MANAGE` (single controlling permission).
-- Accounting actions: APPROVE / PAY / REJECT (REJECT shares `ACC.APPROVE`).
-- Catalog archive / activate share `CAT.UPDATE` (mutation authority).
-- Inventory product adjustments use `INV.ADJUST` (non-action currently; future action endpoints should follow same pattern).
+## Database Optimization
 
-Why not rely solely on server responses?
-- Spec-level exposure allows build-time menu generation & prevents client divergence when feature flags appear.
-- Puts permission mapping under testable deterministic spec hashing (diff surfaces accidental broadening).
+### Indexing Strategy
 
-Extending with New Actions:
-1. Add FSM edge logic + permission constant (if new) in code.
-2. Add action route + `@require_permissions` + `@audit_log` (diff keys, pre-fetch snapshot).
-3. Insert action endpoint generation branch in builder (mirroring pattern) or generalize if many similar.
-4. Add expected permission to heuristic in builder OR (future) migrate to a centralized registry list consumed by the builder.
-5. Update tests + snapshot hash.
+The application includes a comprehensive database indexing strategy for optimal performance:
 
-Future Hardening Ideas:
-- Replace heuristic with declarative `ACTION_REGISTRY = [{path_suffix, perm, summary, schema}]` consumed by builder to eliminate duplication.
-- Add `x-transition-rules` object: map of `from_status -> [allowed_statuses]` for richer client-side disable states (currently implicit server-side only).
-- Emit `x-audit-event` per operation to allow UI to surface “this action will be audited” badge.
-- Gate CI to ensure every `POST */*/{id}/*` action has `x-required-permissions` and returns a schema.
+#### High Priority Indexes
+- User authentication and filtering
+- Product catalog search and filtering
+- Order management and tracking
+- Inventory management
+- Transaction tracking
 
-Client Consumption Pattern (Recommended):
-1. Load OpenAPI once post-auth; index by operationId.
-2. Derive actionable buttons per resource row by intersecting row.status with local transition map and user perms from JWT.
-3. Use ETag/Last-Modified on action responses (optionally extend server endpoints to include validators post-mutation for cache refresh events).
+#### Performance Monitoring
 
-Migration Path (Existing Endpoints):
-- Already-created action endpoints required no spec patching beyond builder addition; runtime code unchanged.
-- Downstream clients can start reading `x-required-permissions` immediately without waiting for version bump.
+Use the provided scripts to monitor and optimize database performance:
 
-Pitfalls Avoided:
-- Avoid embedding permission names in descriptions (use extension field instead for machine clarity).
-- No partial duplication of FSM edge lists in spec—single list of statuses prevents drift.
+```bash
+# Analyze current indexes
+python scripts/analyze_indexes.py
 
-Minimal Example Snippet (spec fragment):
-```json
-"/sales/orders/{order_id}/approve": {
-	"post": {
-		"summary": "Approve order",
-		"x-required-permissions": ["SALES.APPROVE"],
-		"responses": {"200": {"description": "OK"}}
-	}
-}
+# Apply performance indexes
+python scripts/apply_indexes.py
+
+# Monitor performance
+python scripts/monitor_performance.py
 ```
 
-Extending the Spec (recommended approach):
-1. Add new schema or parameter definitions inside the builder (central place ensures reuse).
-2. Programmatically add new paths; assign `operationId` using the existing pattern (`auto_<method>_<sanitized_path>`).
-3. Re-run tests; if hash mismatch is intentional, regenerate and update `openapi_spec_hash.txt`.
+For detailed information, see [Database Optimization Scripts](scripts/README.md).
 
-Planned Enhancements:
-- Include mutation endpoints (create/update/activate/deactivate) with appropriate `@require_permissions` mapping.
-- Add action/transition endpoints for state machines (approve / pay / reject for accounting, start / complete for print jobs) and embed `x-transition-rules` if needed.
-- CI gate comparing previous hash on PRs to force reviewer acknowledgement.
+## API Documentation
 
-### Declarative Action Registry (Implemented)
-Action endpoints and their permissions are now generated from a centralized registry inside `app/openapi_parts/constants.py`:
+### Authentication
+- **POST** `/api/auth/login` - User login
+- **POST** `/api/auth/register` - User registration
+- **POST** `/api/auth/logout` - User logout
+- **GET** `/api/auth/profile` - Get user profile
+
+### Products
+- **GET** `/api/products` - List products
+- **GET** `/api/products/{id}` - Get product details
+- **POST** `/api/products` - Create product
+- **PUT** `/api/products/{id}` - Update product
+- **DELETE** `/api/products/{id}` - Delete product
+
+### Orders
+- **GET** `/api/orders` - List orders
+- **GET** `/api/orders/{id}` - Get order details
+- **POST** `/api/orders` - Create order
+- **PUT** `/api/orders/{id}` - Update order
+- **DELETE** `/api/orders/{id}` - Delete order
+
+### Inventory
+- **GET** `/api/inventory` - List inventory
+- **GET** `/api/inventory/{id}` - Get inventory details
+- **POST** `/api/inventory` - Create inventory record
+- **PUT** `/api/inventory/{id}` - Update inventory
+- **DELETE** `/api/inventory/{id}` - Delete inventory record
+
+### Complete API Documentation
+For complete API documentation, see the individual module README files in the `app/` directory.
+
+## Architecture
+
+### Project Structure
+```
+backend/
+├── app/                    # Application code
+│   ├── caching/           # Caching system
+│   ├── middleware/        # Middleware components
+│   ├── exceptions/        # Error handling
+│   ├── users/            # User management
+│   ├── product/          # Product management
+│   ├── order/            # Order management
+│   ├── inventory/        # Inventory management
+│   └── ...               # Other business modules
+├── migrations/           # Database migrations
+├── scripts/             # Utility scripts
+├── docs/               # Documentation
+└── tests/              # Test files
+```
+
+### Design Patterns
+
+#### Repository Pattern
+- Clean separation of data access logic
+- Consistent interface for database operations
+- Easy testing and mocking
+
+#### Service Layer Pattern
+- Business logic encapsulation
+- Single responsibility principle
+- Facade pattern for complex operations
+
+#### Middleware Pattern
+- Cross-cutting concerns
+- Request/response processing
+- Authentication and authorization
+
+## Caching System
+
+The application includes a comprehensive caching system with Redis integration:
+
+### Features
+- **Optional Caching**: Can be enabled/disabled via configuration
+- **Multiple Strategies**: TTL, LRU, Write-Through, Write-Behind
+- **Entity-Specific Managers**: Dedicated cache managers for each entity
+- **Pattern-Based Invalidation**: Smart cache invalidation
+- **Health Monitoring**: Cache health checks and metrics
+
+### Usage
 ```python
-ACTION_REGISTRY = {
-	"Order": [
-		{"action": "approve", "summary": "Approve order", "permission": "SALES.APPROVE"},
-		# ...
-	],
-	# other entities...
-}
+from app.caching import cache_result, cache_invalidate
+
+@cache_result(timeout=3600)
+def get_products():
+    return Product.query.all()
+
+@cache_invalidate(pattern="product|*")
+def update_product(product_id):
+    # Update product logic
+    pass
 ```
-Rules enforced:
-- Each POST action path gets its required permission injected at build time (`x-required-permissions`).
-- All GET/HEAD list + single resource endpoints auto-annotated with `<SERVICE>.READ` based on domain.
-- Registry is the single source of truth; adding/removing an action only requires editing this dict and implementing the runtime route.
 
-Validation Tests:
-- `tests/test_action_permissions.py` asserts every detected action endpoint has a non-empty `x-required-permissions` list.
-- It also asserts every non-auth GET/HEAD endpoint exposes a read permission.
+For detailed information, see [Caching System Documentation](app/caching/README.md).
 
-Extending:
-1. Add action definition to `ACTION_REGISTRY` (include permission constant already seeded in roles).
-2. Implement route with `@require_permissions` and `@audit_log` (matching permission).
-3. Run tests; update spec hash if other structural spec changes were made.
-4. If a new permission was introduced, ensure seeding adds it to roles; consider adding a test to confirm presence.
+## Middleware System
 
-Rationale:
-- Eliminates brittle path-based heuristics for permission inference.
-- Reduces risk of forgetting to document a permission (test fails early).
-- Keeps spec diff minimal and deterministic, simplifying client codegen or metadata indexing.
+The application includes a comprehensive middleware system:
 
-Future Hardening:
-- Add a test cross-checking that each action permission appears in at least one seeded role (prevent orphan permissions).
-- Optionally expose a machine-readable `x-action` object with structured metadata (e.g., `{"name": "approve", "entity": "Order"}`) for richer UI automation.
+### Components
+- **Authentication Middleware**: JWT token validation
+- **Logging Middleware**: Request/response logging
+- **CORS Middleware**: Cross-origin resource sharing
+- **Rate Limiting Middleware**: API rate limiting
+- **Security Middleware**: Security headers and threat detection
+- **Performance Middleware**: Response time monitoring
 
-Regenerating Hash Manually:
+For detailed information, see [Middleware System Documentation](app/middleware/README.md).
+
+## Error Handling
+
+The application includes a comprehensive error handling system:
+
+### Features
+- **Custom Exception Hierarchy**: Structured exception classes
+- **Flask Error Handlers**: Automatic error response formatting
+- **Context Managers**: Simplified error handling in business logic
+- **Logging Integration**: Detailed error logging
+
+For detailed information, see [Error Handling Documentation](app/exceptions/README.md).
+
+## Development
+
+### Running Tests
 ```bash
-pytest tests/test_openapi.py::test_openapi_spec_hash_stable -q || \
-	python - <<'PY'
-import json,hashlib;from app import create_app;app=create_app();
-from app.openapi import build_openapi_spec
-spec=build_openapi_spec();blob=json.dumps(spec,sort_keys=True,separators=(',',':')).encode();
-open('backend/tests/openapi_spec_hash.txt','w').write(hashlib.sha256(blob).hexdigest()+"\n")
-print('Updated hash')
-PY
+# Run all tests
+python -m pytest
+
+# Run specific test file
+python -m pytest tests/test_users.py
+
+# Run with coverage
+python -m pytest --cov=app
 ```
 
-Spec Generation CLI (Preferred):
+### Code Quality
 ```bash
-# Show current hash
-python -m scripts.generate_spec
+# Format code
+black app/
 
-# Write full spec JSON artifact
-python -m scripts.generate_spec --out backend/openapi.json
+# Lint code
+flake8 app/
 
-# CI style check (non-zero exit if mismatch)
-python -m scripts.generate_spec --check
-
-# Update snapshot after intentional changes
-python -m scripts.generate_spec --update-hash
-
-# Combine: write spec + update snapshot
-python -m scripts.generate_spec --out backend/openapi.json --update-hash
+# Type checking
+mypy app/
 ```
 
-Best Practices:
-- Never hand-edit large static dicts (risk of drift & syntax errors). Always extend the builder.
-- Keep i18n-capable fields (`description_i18n`) in seeds/models rather than plain strings.
-- Introduce new permissions following `SERVICE.ACTION` taxonomy (see `.github/copilot-instructions.md`).
+### Database Migrations
+```bash
+# Create new migration
+alembic revision --autogenerate -m "Description"
 
----
-## Testing Patterns (Summary)
-High-value tests cover:
-- Multi-field sorting stability & ordering with tie-breakers
-- Conditional caching 200 vs 304 branches (list and single-resource)
-- Permission enforcement (403) vs allowed paths
-- OpenAPI spec hash stability
-- FSM transition metadata presence via `x-transitions`
+# Apply migrations
+alembic upgrade head
 
-When adding endpoints:
-1. Provide both positive (permission present) and negative (403) tests.
-2. Add HEAD validator tests mirroring GET list/single behavior.
-3. Update pagination/sorting tests if new sortable fields introduced.
+# Rollback migration
+alembic downgrade -1
+```
 
----
-## Conditional Caching Extension Guide
-To add single-resource caching to another entity (example: `Order`):
-1. Fetch row & latest timestamp (`updated_at`).
-2. Build ETag using a stable representation (existing helper `compute_etag`).
-3. Call `handle_conditional(etag, latest_ts)`; if it returns a response, return immediately (304 or short-circuit HEAD).
-4. On GET success, set `ETag`, and if timestamp present set `Last-Modified` + `X-Last-Modified-ISO` (UTC `Z`).
-5. For HEAD, zero the body (`resp.set_data(b'')`).
+## Deployment
 
-Ensure tests assert header presence and 304 behavior when re-supplying validators.
+### Production Setup
 
----
-## Roadmap Snippet
-- Add audit trail enrichment for financial mutations (already scaffolded with `@audit_log`).
-- Introduce branch scoping flags to spec documentation (reflect `assert_branch_access`).
-- Provide a generated `permissions.json` artifact (CI already exports via seed script) and compare checksum in future.
+1. **Environment Configuration**
+   ```bash
+   # Set production environment variables
+   export FLASK_ENV=production
+   export DATABASE_URL=postgresql://user:pass@host:port/db
+   export REDIS_URL=redis://host:port
+   ```
 
+2. **Database Setup**
+   ```bash
+   # Run migrations
+   alembic upgrade head
+   
+   # Apply performance indexes
+   python scripts/apply_indexes.py
+   ```
+
+3. **Application Deployment**
+   ```bash
+   # Using Gunicorn
+   gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   
+   # Using Docker
+   docker build -t store3d-backend .
+   docker run -p 5000:5000 store3d-backend
+   ```
+
+### Performance Optimization
+
+1. **Database Indexes**
+   - Apply performance indexes
+   - Monitor index usage
+   - Remove unused indexes
+
+2. **Caching**
+   - Enable Redis caching
+   - Configure appropriate TTLs
+   - Monitor cache hit rates
+
+3. **Monitoring**
+   - Set up performance monitoring
+   - Configure alerts
+   - Regular performance reviews
+
+## Monitoring and Maintenance
+
+### Performance Monitoring
+```bash
+# Generate performance report
+python scripts/monitor_performance.py
+
+# Continuous monitoring
+python scripts/monitor_performance.py --continuous --duration 3600
+```
+
+### Database Maintenance
+```bash
+# Analyze database performance
+python scripts/analyze_indexes.py
+
+# Apply optimizations
+python scripts/apply_indexes.py
+```
+
+### Health Checks
+- **Application**: `GET /health`
+- **Database**: `GET /health/database`
+- **Cache**: `GET /cache/health`
+
+## Testing Framework
+
+The project includes a comprehensive testing framework built on pytest:
+
+### Test Categories
+
+- **Unit Tests**: Individual components and functions
+- **Integration Tests**: Component interactions and workflows  
+- **API Tests**: HTTP endpoints and request/response handling
+- **Database Tests**: Data operations and integrity
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m pytest
+
+# Run specific test categories
+python -m pytest test/test_unit/
+python -m pytest test/test_integration/
+python -m pytest test/test_api/
+python -m pytest test/test_database/
+
+# Run with coverage
+python -m pytest --cov=app --cov-report=html
+
+# Run tests in parallel
+python -m pytest -n 4
+```
+
+### Test Configuration
+
+- **Test Database**: In-memory SQLite for fast, isolated testing
+- **Fixtures**: Comprehensive fixtures for all major entities
+- **Mocking**: Built-in mocks for external dependencies
+- **Coverage**: Minimum 80% coverage requirement
+
+### Quality Checks
+
+```bash
+# Run all quality checks
+python scripts/run_tests.py --quality
+
+# Run specific checks
+python scripts/run_tests.py --lint
+python scripts/run_tests.py --format
+python scripts/run_tests.py --type-check
+```
+
+For detailed testing documentation, see [test/README.md](test/README.md).
+
+## Monitoring and Observability
+
+The application includes a comprehensive monitoring and observability system:
+
+### Monitoring Components
+
+- **Structured Logging**: Multi-output logging with JSON formatting
+- **Metrics Collection**: System and application performance metrics
+- **Health Monitoring**: Comprehensive health checks and status monitoring
+- **Performance Tracking**: Request timing and resource usage tracking
+- **Error Tracking**: Error aggregation and categorization
+- **Alerting**: Multi-channel notification system (Email, Slack, Webhook, SMS)
+- **Insights**: Business intelligence and analytics
+
+### Monitoring Endpoints
+
+- **Health**: `GET /health` - Basic health check
+- **Metrics**: `GET /monitoring/metrics` - All metrics
+- **Performance**: `GET /monitoring/performance` - Performance summary
+- **Errors**: `GET /monitoring/errors` - Error summary
+- **Alerts**: `GET /monitoring/alerts` - Recent alerts
+- **Insights**: `GET /monitoring/insights` - Recent insights
+- **Dashboard**: `GET /monitoring/dashboard` - Comprehensive dashboard
+
+### Configuration
+
+```bash
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FORMAT=json
+LOG_CONSOLE_ENABLED=True
+LOG_FILE_ENABLED=True
+
+# Alert Configuration
+ALERT_EMAIL_SMTP_SERVER=smtp.gmail.com
+ALERT_EMAIL_TO=admin@store3d.com,ops@store3d.com
+ALERT_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+```
+
+### Demo
+
+Run the monitoring demo to see all features in action:
+
+```bash
+python app/examples/monitoring_demo.py
+```
+
+For detailed monitoring documentation, see [app/monitoring/README.md](app/monitoring/README.md).
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+### Development Guidelines
+- Follow PEP 8 style guide
+- Write comprehensive tests
+- Document new features
+- Update README files
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support and questions:
+- Create an issue in the repository
+- Check the documentation
+- Contact the development team
+
+## Changelog
+
+### v1.0.0
+- Initial release
+- Core functionality implementation
+- Database optimization
+- Caching system
+- Middleware system
+- Error handling system

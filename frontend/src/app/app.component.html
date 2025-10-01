@@ -1,0 +1,28 @@
+<mat-sidenav-container class="layout">
+  <mat-sidenav #sidenav mode="side" [opened]="true" class="sidenav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/products">Products</a>
+      <a mat-list-item routerLink="/orders">Orders</a>
+      <a mat-list-item routerLink="/upload">Upload</a>
+      <a mat-list-item routerLink="/preview">Preview</a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="sidenav.toggle()" class="hide-desktop">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="title">3D Store</span>
+      <span class="spacer"></span>
+      <button mat-button routerLink="/products">Products</button>
+      <button mat-button routerLink="/orders">Orders</button>
+      <button mat-button routerLink="/upload">Upload</button>
+      <button mat-button routerLink="/preview">Preview</button>
+    </mat-toolbar>
+
+    <div class="content">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

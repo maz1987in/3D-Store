@@ -1,0 +1,830 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: payment
+  description: Operations about Payment
+
+paths:
+  /payments/:
+    get:
+      tags:
+      - payment
+      summary: Get All Payments
+      description: This can only be done by the logged in user.
+      operationId: GetPayments
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - payment
+      summary: Add Payment
+      description: This can only be done by the logged in user.
+      operationId: AddPayment
+      requestBody:
+        description: Add payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentTransaction'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/{paymentId}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentById
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - payment
+      summary: Delete payment
+      description: This can only be done by the logged in user.
+      operationId: deletePayment
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - payment
+      summary: Updated Payment
+      description: This can only be done by the logged in user.
+      operationId: updatePayment
+      parameters:
+      - name: paymentId
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentTransaction'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/model/{model_type}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order  
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+              type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/model/{model_type}/{model_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByModelTypeAndId
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: number
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/reference/{reference_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByReferenceTd
+      parameters:
+      - name: reference_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/transaction/{gateway_transaction_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentBytTransactionTd
+      parameters:
+      - name: gateway_transaction_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/check/{reference_id}:
+    get:
+      tags:
+      - payment
+      summary: check payment
+      description: This can only be done by the logged in user.
+      operationId: CheckPaymentByReferenceId
+      parameters:
+      - name: reference_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/payment_config:
+    get:
+      tags:
+      - payment
+      summary: Get All PaymentConfig
+      description: This can only be done by the logged in user.
+      operationId: GetPaymentConfig
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentConfig'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - payment
+      summary: Add PaymentConfig
+      description: This can only be done by the logged in user.
+      operationId: AddPaymentConfig
+      requestBody:
+        description: Add payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfig'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/payment_config/{paymentId}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentConfigById
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentConfig'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - payment
+      summary: Delete payment
+      description: This can only be done by the logged in user.
+      operationId: deletePaymentConfig
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - payment
+      summary: Updated PaymentConfig
+      description: This can only be done by the logged in user.
+      operationId: updatePaymentConfig
+      parameters:
+      - name: paymentId
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfig'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/payment_config/online:
+    get:
+      tags:
+      - payment
+      summary: Get payment online
+      description: This can only be done by the logged in user.
+      operationId: getPaymentConfigOnline
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                      
+  /payments/payment_gateway:
+    get:
+      tags:
+      - payment
+      summary: Get All PaymentGateway
+      description: This can only be done by the logged in user.
+      operationId: GetPaymentGateway
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentGateway'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - payment
+      summary: Add PaymentGateway
+      description: This can only be done by the logged in user.
+      operationId: AddPaymentGateway
+      requestBody:
+        description: Add payment gateway object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentGateway'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/payment_gateway/{paymentId}:
+    delete:
+      tags:
+      - payment
+      summary: Delete payment gateway
+      description: This can only be done by the logged in user.
+      operationId: deletePaymentGateway
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/payment_type:
+    get:
+      tags:
+      - payment
+      summary: Get All PaymentType
+      description: This can only be done by the logged in user.
+      operationId: GetPaymentType
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    PaymentTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        requester:
+          type: string
+        reference_id:
+          type: string
+        gateway_transaction_id:
+          type: string
+          format: date-time
+        payment_status:
+          type: string
+          description: Payment Status
+          enum:
+          - none
+          - pending
+          - cancel
+          - error
+          - fail
+          - success
+        amount:
+          type: number
+          format: float
+        vat:
+          type: number
+          format: float
+        model_type:
+          type: string
+        model_id:
+          type: integer
+          format: int64
+        response_code:
+          type: string
+        response_decision:
+          type: string
+        card_number:
+          type: string
+        card_expiry_date:
+          type: string
+        note:
+          type: string
+        retry:
+          type: integer
+          format: int64
+        dump_response:
+          type: string
+        custom_properties:
+          type: string
+          format: JSON
+        create_date:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        payment_gateway:
+          type: string
+        payment_type:
+          type: string
+
+    PaymentConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        payment_gateway:
+          type: string
+        fee: 
+          type: number
+          format: float
+        fee_cap: 
+          type: number
+          format: float
+        limit: 
+          type: number
+          format: float
+        is_default:
+          type: boolean
+        url:
+          type: string
+        access_key:
+          type: string
+        secret_key:
+          type: string
+        merchant_key1:
+          type: string
+        merchant_key2:
+          type: string
+        merchant_key3:
+          type: string
+        merchant_key4:
+          type: string
+        merchant_key5:
+          type: string
+    PaymentGateway:
+      type: object
+      properties:
+        name:
+          type: string
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

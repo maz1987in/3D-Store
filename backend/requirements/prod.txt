@@ -1,0 +1,9 @@
+# Specifies only prod-specific requirements
+# But imports the common ones too
+-r common.txt
+#gunicorn==21.2.0
+# SQL
+PyMySQL==1.1.1
+cryptography==43.0.3
+# PostgreSQL
+#psycopg2==2.9.5

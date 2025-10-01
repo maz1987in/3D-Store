@@ -1,0 +1,500 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: login
+  description: Operations about login
+- name: signup
+  description: Operations about signup
+
+paths:
+  /login/:
+    post:
+      tags:
+      - login
+      summary: login
+      description: to login
+      operationId: loginAny
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWTToken'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        408:
+          $ref: '#/components/schemas/Global'
+  /login/admin:
+    post:
+      tags:
+      - login
+      summary: login
+      description: to login
+      operationId: loginAdmin
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWTToken'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        408:
+          $ref: '#/components/schemas/Global'
+  /login/resetpassword:
+    post:
+      tags:
+      - login
+      summary: resetpassword
+      description: resetpassword
+      operationId: resetpassword
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /login/forgotpassword/{unique}:
+    post:
+      tags:
+      - login
+      summary: forgotpassword
+      description: forgotpassword
+      operationId: forgotpassword
+      parameters:
+      - name: unique
+        in: path
+        description: The id that needs to be forgotpassword
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /login/forgotpassword_otp/:
+    post:
+      tags:
+      - login
+      summary: forgotpassword otp
+      description: forgotpassword otp
+      operationId: forgotpassword_otp
+      requestBody:
+        description: forgotpassword otp
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                otp:
+                  type: integer
+                token:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  status:
+                    type: string
+        400:
+          $ref: '#/components/responses/Unauthorized'
+          
+  /signup/:
+    post:
+      tags:
+      - signup
+      summary: signup
+      description: signup
+      operationId: signup
+      requestBody:
+        description: Add payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+  
+  /signup/confirm/{token}:
+    post:
+      tags:
+      - signup
+      summary: confirm
+      description: confirm
+      operationId: confirm
+      parameters:
+      - name: token
+        in: path
+        description: The id that needs to be confirm
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /signup/mobile_otp/:
+    post:
+      tags:
+      - signup
+      summary: mobile otp
+      description: mobile otp
+      operationId: mobile_otp
+      requestBody:
+        description: mobile otp
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                country_code:
+                  type: integer
+                local:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  status:
+                    type: string
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+  /signup/verify_mobile/:
+    post:
+      tags:
+      - signup
+      summary: verify mobile
+      description: verify mobile
+      operationId: verify_mobile
+      requestBody:
+        description: verify mobile
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                otp:
+                  type: integer
+                token:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  status:
+                    type: string
+                  id:
+                    type: string
+                  role:
+                    type: string
+        500:
+          description: error operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  status:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+  /signup/get_otp/:
+    post:
+      tags:
+      - signup
+      summary: get mobile otp
+      description: get mobile otp
+      operationId: get_mobile_otp
+      requestBody:
+        description: get mobile otp
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                country_code:
+                  type: integer
+                local:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  status:
+                    type: string
+        404:
+          $ref: '#/components/responses/NotFound'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+  /signup/verify_mobile_otp/:
+    post:
+      tags:
+      - signup
+      summary: verify mobile otp
+      description: verify mobile otp
+      operationId: verify_mobile_otp
+      requestBody:
+        description: verify mobile otp
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_number:
+                  type: string
+                otp:
+                  type: integer
+                token:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  status:
+                    type: string
+        400:
+          description: Cannot Verify User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  status:
+                    type: string
+  /email/:
+    post:
+      tags:
+      - email
+      summary: email
+      description: email
+      operationId: email
+      requestBody:
+        description: email
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                subject:
+                  type: string
+                message:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+
+components:
+  schemas:
+    Signup:
+      type: object
+      properties:
+        phone:
+          type: integer
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        agree:
+          type: boolean
+        role:
+          type: string
+          enum:
+          - Public
+          - Admin
+          - Owner
+          - Corporate
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        is_active:
+          type: boolean
+        phone:
+          type: integer
+        email:
+          type: string
+          format: email
+        mobile_confirmed_at:
+          type: string
+          format: date-time
+        email_confirmed_at:
+          type: string
+          format: date-time
+    JWTToken:
+      type: object
+      properties:
+        token:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role_id:
+          type: integer
+        role:
+          type: string
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

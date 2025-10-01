@@ -1,0 +1,399 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: dashboards
+  description: Operations about Dashboards
+
+paths:
+  /dashboards/users:
+    get:
+      tags:
+      - dashboards
+      summary: Get user_statistics file
+      description: This can only be done by the logged-in user.
+      operationId: getUserStatistics
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/customers/total:
+    get:
+      tags:
+      - dashboards
+      summary: Get total number of customers
+      description: Retrieve the total number of customers in the system.
+      operationId: getTotalCustomers
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_customers:
+                    type: integer
+                    description: Total number of customers
+                    example: 123
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/contactus:
+    get:
+      tags:
+      - dashboards
+      summary: Get contactus statistics file
+      description: This can only be done by the logged in user.
+      operationId: getContactusStatistics
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /dashboards/invoices:
+    get:
+      tags:
+      - dashboards
+      summary: Get invoices statistics file
+      description: This can only be done by the logged-in user.
+      operationId: getInvoicesStatistics
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, operation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /dashboards/invoices/total:
+    get:
+      tags:
+      - dashboards
+      summary: Get total invoices statistics
+      description: This can only be done by the logged in user.
+      operationId: getTotalInvoicesStatistics
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /dashboards/invoices/count:
+    get:
+      tags:
+      - dashboards
+      summary: Get total number of invoices
+      description: Retrieve the total number of invoices, optionally filtered by criteria.
+      operationId: getTotalInvoicesCount
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `customer_id,eq,123` or `date,gt,2025-01-01`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_invoices_count:
+                    type: integer
+                    description: Total number of invoices
+                    example: 456
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/payment_transactions:
+    get:
+      tags:
+      - dashboards
+      summary: Get payment_transactions statistics file
+      description: This can only be done by the logged in user.
+      operationId: getPaymentTransactionsStatistics
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/payments/total:
+    get:
+      tags:
+      - dashboards
+      summary: Get total payments amount
+      description: Retrieve the total amount of all payments, optionally filtered by criteria.
+      operationId: getTotalPaymentsAmount
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `payment_method,eq,Cash` or `payment_date,gt,2025-01-01`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_payments_amount:
+                    type: number
+                    format: float
+                    description: Total amount of all payments
+                    example: 12345.67
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /dashboards/expenses/total:
+    get:
+      tags:
+      - dashboards
+      summary: Get total expenses amount
+      description: Retrieve the total amount of all expenses, optionally filtered by criteria.
+      operationId: getTotalExpensesAmount
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `category_id,eq,123` or `date,gt,2025-01-01`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_expenses_amount:
+                    type: number
+                    format: float
+                    description: Total amount of all expenses
+                    example: 9876.54
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/inventory/total_quantity:
+    get:
+      tags:
+      - dashboards
+      summary: Get total quantity of products in inventory
+      description: Retrieve the total quantity of products in the inventory, optionally filtered by criteria.
+      operationId: getTotalProductsQuantity
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `branch_id,eq,123` or `store_id,eq,456`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_products_quantity:
+                    type: integer
+                    description: Total quantity of products in the inventory
+                    example: 1500
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/transactions/total:
+    get:
+      tags:
+      - dashboards
+      summary: Get total number of transactions
+      description: Retrieve the total number of transactions, optionally filtered by criteria.
+      operationId: getTotalTransactions
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `product_id,eq,123` or `transaction_date,gt,2025-01-01`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_transactions_count:
+                    type: integer
+                    description: Total number of transactions
+                    example: 150
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/orders/count:
+    get:
+      tags:
+      - dashboards
+      summary: Get total number of orders
+      description: Retrieve the total number of orders, optionally filtered by criteria.
+      operationId: getTotalOrdersCount
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `supplier_id,eq,123` or `status,eq,Pending`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_orders_count:
+                    type: integer
+                    description: Total number of orders
+                    example: 100
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /dashboards/orders/total_amount:
+    get:
+      tags:
+      - dashboards
+      summary: Get total amount of orders
+      description: Retrieve the total amount of orders, optionally filtered by criteria.
+      operationId: getTotalOrdersAmount
+      parameters:
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: Field, operator, value (e.g., `supplier_id,eq,123` or `status,eq,Pending`)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_orders_amount:
+                    type: number
+                    format: float
+                    description: Total amount of orders
+                    example: 12345.67
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+
+    Global:
+      required:
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

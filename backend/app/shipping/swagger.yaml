@@ -1,0 +1,193 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is a Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: Shipping
+  description: Operations about Shipping
+
+paths:
+  /shipping:
+    get:
+      summary: Get all shipping information
+      tags:
+        - Shipping
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: Items per page
+      responses:
+        '200':
+          description: List of shipping information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shipping:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Shipping'
+                  filters:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /shipping/{id}:
+    get:
+      summary: Get shipping information by ID
+      tags:
+        - Shipping
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Shipping ID
+      responses:
+        '200':
+          description: Shipping information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipping'
+        '404':
+          description: Shipping not found
+
+  /shipping/order/{order_id}:
+    get:
+      summary: Get shipping information for a specific order
+      tags:
+        - Shipping
+      parameters:
+        - in: path
+          name: order_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Shipping information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipping'
+        '404':
+          description: Shipping information not found
+
+  /shipping/{order_id}:
+    post:
+      summary: Create shipping information for an order
+      tags:
+        - Shipping
+      parameters:
+        - in: path
+          name: order_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shipping'
+      responses:
+        '201':
+          description: Shipping information created
+        '400':
+          description: Invalid payload
+
+    put:
+      summary: Update shipping information for an order
+      tags:
+        - Shipping
+      parameters:
+        - in: path
+          name: order_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shipping'
+      responses:
+        '200':
+          description: Shipping information updated
+        '400':
+          description: Invalid payload
+
+components:
+  schemas:
+    Global:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    Shipping:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order_id:
+          type: string
+          format: uuid
+        carrier:
+          type: string
+        tracking_number:
+          type: string
+        shipping_cost:
+          type: number
+          format: float
+        shipping_date:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [PENDING, SHIPPED, IN_TRANSIT, DELIVERED]
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Global'

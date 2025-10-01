@@ -1,0 +1,7 @@
+# Specifies only dev-specific requirements
+# But imports the common ones too
+-r common.txt
+# SQL
+PyMySQL==1.1.1
+# PostgreSQL
+#psycopg2==2.9.5

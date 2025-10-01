@@ -1,0 +1,1 @@
+# This file initializes the rating module. It may contain package-level documentation or initialization code.

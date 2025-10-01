@@ -1,0 +1,1910 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: login
+  description: Operations about login
+- name: signup
+  description: Operations about signup
+- name: email
+  description: Operations about email
+- name: user
+  description: Operations about user
+- name: media
+  description: Operations about Media
+- name: payment
+  description: Operations about Payment
+- name: setting
+  description: Operations about Setting
+- name: user_notification
+  description: Operations about User Notification
+- name: category
+  description: Operations about Category
+paths:
+  /login/admin:
+    post:
+      tags:
+      - login
+      summary: login
+      description: to login
+      operationId: login
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWTToken'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        408:
+          $ref: '#/components/schemas/Global'
+  /login/resetpassword:
+    post:
+      tags:
+      - login
+      summary: resetpassword
+      description: resetpassword
+      operationId: resetpassword
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /login/forgotpassword/{unique}:
+    post:
+      tags:
+      - login
+      summary: forgotpassword
+      description: forgotpassword
+      operationId: forgotpassword
+      parameters:
+      - name: unique
+        in: path
+        description: The id that needs to be forgotpassword
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+          
+  /signup/:
+    post:
+      tags:
+      - signup
+      summary: signup
+      description: signup
+      operationId: signup
+      requestBody:
+        description: Add signup object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+  
+  /signup/confirm/{token}:
+    post:
+      tags:
+      - signup
+      summary: confirm
+      description: confirm
+      operationId: confirm
+      parameters:
+      - name: token
+        in: path
+        description: The id that needs to be confirm
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /email/:
+    post:
+      tags:
+      - email
+      summary: email
+      description: email
+      operationId: email
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /users/:
+    get:
+      tags:
+      - user
+      summary: Get All Users
+      description: This can only be done by the logged in user.
+      operationId: GetUsers
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /users/{userId}:
+    delete:
+      tags:
+      - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid userId supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /users/disable/{userId}:
+    patch:
+      tags:
+      - user
+      summary: Disable user
+      description: This can only be done by the logged in user.
+      operationId: disableUser
+      parameters:
+      - name: userId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid userId supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/:
+    get:
+      tags:
+      - payment
+      summary: Get All Payments
+      description: This can only be done by the logged in user.
+      operationId: GetPayments
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - payment
+      summary: Add Payment
+      description: This can only be done by the logged in user.
+      operationId: AddPayment
+      requestBody:
+        description: Add payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentTransaction'
+        required: true
+      responses:
+        400:
+          description: Invalid payment supplied
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/{paymentId}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentById
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          description: Invalid paymentId supplied
+          content: {}
+        404:
+          description: Payments not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - payment
+      summary: Delete payment
+      description: This can only be done by the logged in user.
+      operationId: deletePayment
+      parameters:
+      - name: paymentId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid paymentId supplied
+          content: {}
+        404:
+          description: Payment not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - payment
+      summary: Updated Payment
+      description: This can only be done by the logged in user.
+      operationId: updatePayment
+      parameters:
+      - name: paymentId
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated payment object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentTransaction'
+        required: true
+      responses:
+        400:
+          description: Invalid payment supplied
+          content: {}
+        404:
+          description: payment not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /payments/model/{model_type}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order  
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          description: Invalid paymentId supplied
+          content: {}
+        404:
+          description: Payments not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/model/{model_type}/{model_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByModelTypeAndId
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: number
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          description: Invalid prameters supplied
+          content: {}
+        404:
+          description: Payments not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/reference/{reference_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentByReferenceTd
+      parameters:
+      - name: reference_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          description: Invalid reference id supplied
+          content: {}
+        404:
+          description: Payments not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /payments/transaction/{transaction_id}:
+    get:
+      tags:
+      - payment
+      summary: Get payment
+      description: This can only be done by the logged in user.
+      operationId: getPaymentBytTransactionTd
+      parameters:
+      - name: transaction_id
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+        400:
+          description: Invalid transaction id supplied
+          content: {}
+        404:
+          description: Payments not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/:
+    get:
+      tags:
+      - media
+      summary: Get All Medias
+      description: This can only be done by the logged in user.
+      operationId: GetMedias
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - media
+      summary: Add Media
+      description: This can only be done by the logged in user.
+      operationId: AddMedia
+      requestBody:
+        description: Add media object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+        required: true
+      responses:
+        400:
+          description: Invalid media supplied
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /medias/{mediaId}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaById
+      parameters:
+      - name: mediaId
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+        400:
+          description: Invalid mediaId supplied
+          content: {}
+        404:
+          description: Medias not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - media
+      summary: Delete media
+      description: This can only be done by the logged in user.
+      operationId: delete_media
+      parameters:
+      - name: mediaId
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid mediaId supplied
+          content: {}
+        404:
+          description: Media not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - media
+      summary: Updated Media
+      description: This can only be done by the logged in user.
+      operationId: update_media
+      parameters:
+      - name: mediaId
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated media object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+        required: true
+      responses:
+        200:
+          description: media
+          content: {}
+        400:
+          description: Invalid media supplied
+          content: {}
+        404:
+          description: media not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /medias/model/{model_type}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          description: Invalid mediaId supplied
+          content: {}
+        404:
+          description: Medias not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/model/{model_type}/{model_id}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByModelTypeAndId
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: number
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medias:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Media'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          description: Invalid prameters supplied
+          content: {}
+        404:
+          description: Medias not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/files-upload/{disk}/{model_type}:
+    post:
+      tags:
+      - media
+      summary: Store3dt media
+      description: This can only be done by the logged in user.
+      operationId: postMediaByModelType
+      parameters:
+      - name: disk
+        in: path
+        description: The disk to store
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: mediaId supplied
+          content: {}
+        400:
+          description: Invalid mediaId supplied
+          content: {}
+        404:
+          description: Medias not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/files-upload/{disk}/{model_type}/{model_id}:
+    post:
+      tags:
+      - media
+      summary: Store3dt media
+      description: This can only be done by the logged in user.
+      operationId: postMediaByModelTypeAndId
+      parameters:
+      - name: disk
+        in: path
+        description: The disk to store
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: number
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        400:
+          description: Invalid prameters supplied
+          content: {}
+        404:
+          description: Medias not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /medias/file/{disk}/{fileid}:
+    get:
+      tags:
+      - media
+      summary: Get media
+      description: This can only be done by the logged in user.
+      operationId: getMediaByFolderAndId
+      parameters:
+      - name: disk
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+          enum:
+              - media
+              - avatar
+              - secure
+      - name: fileid
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+        404:
+          description: File Not Found
+  /settings/:
+    get:
+      tags:
+      - setting
+      summary: Get All Settings
+      description: This can only be done by the logged in user.
+      operationId: GetSettings
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Setting'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - setting
+      summary: Add Setting
+      description: This can only be done by the logged in user.
+      operationId: AddSetting
+      requestBody:
+        description: Add setting object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        400:
+          description: Invalid setting supplied
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /settings/{key}:
+    get:
+      tags:
+      - setting
+      summary: Get setting
+      description: This can only be done by the logged in user.
+      operationId: getSettingBykey
+      parameters:
+      - name: key
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid key supplied
+          content: {}
+        404:
+          description: Settings not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - setting
+      summary: Delete setting
+      description: This can only be done by the logged in user.
+      operationId: deleteSetting
+      parameters:
+      - name: key
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid key supplied
+          content: {}
+        404:
+          description: Setting not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - setting
+      summary: Updated Setting
+      description: This can only be done by the logged in user.
+      operationId: updateSetting
+      parameters:
+      - name: key
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated setting object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        400:
+          description: Invalid setting supplied
+          content: {}
+        404:
+          description: setting not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /settings/category/{category}:
+    get:
+      tags:
+      - setting
+      summary: Get setting
+      description: This can only be done by the logged in user.
+      operationId: getSettingByCategory
+      parameters:
+      - name: category
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid category supplied
+          content: {}
+        404:
+          description: Settings not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /user_notifications/:
+    get:
+      tags:
+      - user_notification
+      summary: Get All UserNotifications
+      description: This can only be done by the logged in user.
+      operationId: GetUserNotifications
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserNotification'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - user_notification
+      summary: Add UserNotification
+      description: This can only be done by the logged in user.
+      operationId: AddUserNotification
+      requestBody:
+        description: Add user_notification object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotification'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+
+        400:
+          description: Invalid user_notification supplied
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /user_notifications/{id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get user_notification
+      description: This can only be done by the logged in user.
+      operationId: getUserNotificationById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: UserNotifications not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - user_notification
+      summary: Delete user_notification
+      description: This can only be done by the logged in user.
+      operationId: deleteUserNotification
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: UserNotification not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - user_notification
+      summary: Updated UserNotification
+      description: This can only be done by the logged in user.
+      operationId: updateUserNotification
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated user_notification object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNotification'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          description: Invalid user_notification supplied
+          content: {}
+        404:
+          description: user_notification not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /user_notifications/user/{user_id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get user_notification
+      description: This can only be done by the logged in user.
+      operationId: getUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserNotification'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          description: Invalid user_id supplied
+          content: {}
+        404:
+          description: UserNotifications not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - user_notification
+      summary: Delete All user_notification by User id
+      description: This can only be done by the logged in user.
+      operationId: deleteAllUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: UserNotification not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /user_notifications/user/count/{user_id}:
+    get:
+      tags:
+      - user_notification
+      summary: Get Count user_notification
+      description: This can only be done by the logged in user.
+      operationId: getCountUserNotificationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          description: Invalid user_id supplied
+          content: {}
+        404:
+          description: UserNotifications not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /user_notifications/read/{id}:
+    post:
+      tags:
+      - user_notification
+      summary: read user_notification
+      description: This can only be done by the logged in user.
+      operationId: readUserNotificationById
+      parameters:
+      - name: id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          description: Invalid user_id supplied
+          content: {}
+        404:
+          description: UserNotifications not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /user_notifications/read/all/{user_id}:
+    post:
+      tags:
+      - user_notification
+      summary: read all user_notification by user id
+      description: This can only be done by the logged in user.
+      operationId: readAllUserNotificationById
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          description: Invalid user_id supplied
+          content: {}
+        404:
+          description: UserNotifications not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /categories/:
+    get:
+      tags:
+      - category
+      summary: Get All Categories
+      description: This can only be done by the logged in user.
+      operationId: GetCategories
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - category
+      summary: Create category
+      description: This can only be done by the logged in user.
+      operationId: CreateCategory
+      requestBody:
+        description: Create category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          description: Invalid category supplied
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /categories/{id}:
+    get:
+      tags:
+      - category
+      summary: Get category
+      description: This can only be done by the logged in user.
+      operationId: getCategoryById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: Categories not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - category
+      summary: Delete category
+      description: This can only be done by the logged in user.
+      operationId: delete_category
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          description: Category not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - category
+      summary: Updated Category
+      description: This can only be done by the logged in user.
+      operationId: update_category
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          description: Invalid category supplied
+          content: {}
+        404:
+          description: category not found
+          content: {}
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Signup:
+      type: object
+      properties:
+        phone:
+          type: integer
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        is_active:
+          type: boolean
+        phone:
+          type: integer
+        email:
+          type: string
+          format: email
+        mobile_confirmed_at:
+          type: string
+          format: date-time
+        email_confirmed_at:
+          type: string
+          format: date-time
+    PaymentTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        requester:
+          type: string
+        reference_id:
+          type: string
+        transaction_id:
+          type: string
+          format: date-time
+        payment_status:
+          type: string
+          description: Payment Status
+          enum:
+          - none
+          - pending
+          - cancel
+          - error
+          - fail
+          - success
+        amount:
+          type: number
+          format: float
+        vat:
+          type: number
+          format: float
+        model_type:
+          type: string
+        model_id:
+          type: integer
+          format: int64
+        response_code:
+          type: string
+        response_decision:
+          type: string
+        card_number:
+          type: string
+        card_expiry_date:
+          type: string
+        note:
+          type: string
+        dump_response:
+          type: string
+        custom_properties:
+          type: string
+          format: JSON
+        create_date:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+        payment_gateway:
+          type: string
+        payment_type:
+          type: string
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        model_type:
+          type: string
+          example: users
+        model_id:
+          type: integer
+          format: int64
+        collection_name:
+          type: string
+        name:
+          type: string
+        mime_type:
+          type: string
+        disk:
+          type: string
+        size:
+          type: string
+        order_column:
+          type: integer
+          format: int32
+        upload_file:
+          type: string
+        custom_properties:
+          type: string
+          format: JSON
+        create_date:
+          type: string
+          format: date-time
+        last_modified:
+          type: string
+          format: date-time
+    Setting:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        category:
+          type: string
+        last_modified:
+          type: string
+          format: date-time
+    UserNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        user_id:
+          type: integer
+          format: int64
+        read:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        enable:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        order:
+          type: integer
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: string
+    
+    JWTToken:
+      type: object
+      properties:
+        token:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role_id:
+          type: integer
+        role:
+          type: string
+      
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

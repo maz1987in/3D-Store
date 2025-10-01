@@ -1,0 +1,562 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: quotation
+  description: Operations about Quotation
+
+paths:
+  /quotations/:
+    get:
+      tags:
+      - quotation
+      summary: Get All Quotations
+      description: This can only be done by the logged in user.
+      operationId: GetQuotations
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - quotation
+      summary: Create quotation
+      description: This can only be done by the logged in user.
+      operationId: CreateQuotation
+      requestBody:
+        description: Create quotation object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quotation'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /quotations/{id}:
+    get:
+      tags:
+      - quotation
+      summary: Get quotation
+      description: This can only be done by the logged in user.
+      operationId: getQuotationById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - quotation
+      summary: Delete quotation
+      description: This can only be done by the logged in user.
+      operationId: deleteQuotation
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /quotations/transaction/{transaction_id}:
+    get:
+      tags:
+      - quotation
+      summary: Get quotation
+      description: This can only be done by the logged in user.
+      operationId: getQuotationByTransactionId
+      parameters:
+      - name: transaction_id
+        in: path
+        description: The transaction id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+  /quotations/user/{user_id}:
+    get:
+      tags:
+      - quotation
+      summary: Get quotation
+      description: This can only be done by the logged in user.
+      operationId: getQuotationByUserId
+      parameters:
+      - name: user_id
+        in: path
+        description: The user id that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page 
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /quotations/user:
+    get:
+      tags:
+      - quotation
+      summary: Get All My Quotations
+      description: This can only be done by the logged in user.
+      operationId: GetMyQuotations
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sort field
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: order
+        - in: query
+          name: queries
+          schema:
+            type: array
+            items:
+              type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /quotations/model/{model_type}:
+    get:
+      tags:
+      - quotation
+      summary: Get quotation
+      description: This can only be done by the logged in user.
+      operationId: getQuotationByModelType
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page 
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /quotations/model/{model_type}/{model_id}:
+    get:
+      tags:
+      - quotation
+      summary: Get quotation
+      description: This can only be done by the logged in user.
+      operationId: getQuotationByModelTypeAndId
+      parameters:
+      - name: model_type
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      - name: model_id
+        in: path
+        description: The model id that needs to get
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page 
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+        description: items per page
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: sort field
+      - in: query
+        name: sort_order
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+        description: order
+      - in: query
+        name: queries
+        schema:
+          type: array
+          items:
+            type: string
+        description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quotation'
+                  filter:
+                      $ref: '#/components/schemas/filter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Quotation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        transaction_id:
+          type: string
+          format: uuid
+        vat_number:
+          type: string
+        number:
+          type: string
+        date:
+          type: string
+          format: date
+        details:
+          type: string
+          format: json
+        summary:
+          type: string
+          format: json
+        owner_id:
+          type: string
+          format: uuid
+        owner_details:
+          type: string
+          format: json
+        user_id:
+          type: string
+          format: uuid
+        user_details:
+          type: string
+          format: json
+        model_id:
+          type: string
+        model_type:
+          type: string
+        total_amount:
+          type: number
+          format: float
+
+
+    filter:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int64
+        per_page:
+          type: integer
+          format: int64
+        sort:
+          type: string
+        sort_order:
+          type: string
+          enum:
+              - asc
+              - desc
+        queries:
+          type: array
+          items:
+            type: string
+          description: field,operator,value _exp_ | name,eq,mazoman&email,eq,info@mazoman.com|, opernation| eq,ne,lt,gt,le,ge,like |
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

@@ -1,0 +1,459 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: slider
+  description: Operations about Slider
+
+paths:
+  /sliders/:
+    get:
+      tags:
+      - slider
+      summary: Get All Sliders
+      description: This can only be done by the logged in user.
+      operationId: GetSliders
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sliders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slider'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - slider
+      summary: Create slider
+      description: This can only be done by the logged in user.
+      operationId: CreateSlider
+      requestBody:
+        description: Create slider object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtSlider'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /sliders/{id}:
+    get:
+      tags:
+      - slider
+      summary: Get slider
+      description: This can only be done by the logged in user.
+      operationId: getSliderById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sliders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slider'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - slider
+      summary: Delete slider
+      description: This can only be done by the logged in user.
+      operationId: delete_slider
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - slider
+      summary: Updated Slider
+      description: This can only be done by the logged in user.
+      operationId: update_slider
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated slider object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtSlider'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /sliders/today/{platform}:
+    get:
+      tags:
+      - slider
+      summary: Get slider and its today
+      description: This can only be done by the logged in user.
+      operationId: getSliderDependenciesById
+      parameters:
+      - name: platform
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+          enum:
+              - ALL
+              - WEB
+              - ANDROID
+              - IOS
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sliders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slider'
+                  today:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slider'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /sliders/slider_types/:
+    get:
+      tags:
+      - slider_type
+      summary: Get All SliderTypess
+      description: This can only be done by the logged in user.
+      operationId: GetSliderTypess
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slider_types:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SliderType'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - slider_type
+      summary: Create slider_type
+      description: This can only be done by the logged in user.
+      operationId: CreateSliderTypes
+      requestBody:
+        description: Create slider_type object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SliderType'
+        required: true
+      responses:
+        201:
+          description: Successful OSperation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /sliders/slider_types/{name}:
+    delete:
+      tags:
+      - slider_type
+      summary: Delete slider_type
+      description: This can only be done by the logged in user.
+      operationId: delete_slider_type
+      parameters:
+      - name: name
+        in: path
+        description: The name that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - slider_type
+      summary: Updated SliderTypes
+      description: This can only be done by the logged in user.
+      operationId: update_slider_type
+      parameters:
+      - name: name
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated slider_type object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SliderType'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    Slider:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        enable:
+          type: boolean
+        from_date:
+          type: string
+          format: date-time
+        to_date:
+          type: string
+          format: date-time
+        order:
+          type: integer
+          format: int64
+        url:
+          type: string
+        slider_type:
+          type: string
+        image:
+          type: string
+          format: JSON
+        platform:
+          type: string
+          enum:
+              - ALL
+              - WEB
+              - ANDROID
+              - IOS
+        title:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    Store3dtSlider:
+      type: object
+      properties:
+        enable:
+          type: boolean
+        from_date:
+          type: string
+          format: date-time
+        to_date:
+          type: string
+          format: date-time
+        order:
+          type: integer
+          format: int64
+        url:
+          type: string
+        slider_type:
+          type: string
+        image:
+          type: string
+          format: binary
+        platform:
+          type: string
+          enum:
+              - ALL
+              - WEB
+              - ANDROID
+              - IOS
+        title:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        content:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+    SliderType:
+      type: object
+      properties:
+        name:
+          type: string
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

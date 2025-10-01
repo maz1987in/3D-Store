@@ -1,0 +1,79 @@
+# Development Environment Configuration - Cache Disabled
+# Copy this to .env for development without caching
+
+DEBUG=True
+SECRET_KEY=dev_secret_key_12345
+ENV=development
+FLASK_RUN_PORT=5000
+SECURITY_PASSWORD_SALT=dev_salt_12345
+HOST_URL=http://localhost:5000
+WEBSITE_URL=http://localhost:4200
+
+# Database Configuration
+DB_TYPE=mysql
+DB_USERNAME=root
+DB_PASSWORD=password
+DB_DATABASE_NAME=store3d_dev
+DB_HOST=localhost:3306
+DB_POOL_RECYCLE=3600
+DB_POOL_SIZE=10
+DB_POOL_TIMEOUT=30
+DB_POOL_MAX_OVERFLOW=20
+
+# Cache Configuration - DISABLED
+CACHE_ENABLED=False
+CACHE_TYPE=SimpleCache
+CACHE_DEFAULT_TIMEOUT=300
+CACHE_KEY_PREFIX=store3d_dev_
+
+# Redis Configuration (not used when cache is disabled)
+CACHE_REDIS_HOST=localhost
+CACHE_REDIS_PORT=6379
+CACHE_REDIS_PASSWORD=None
+CACHE_REDIS_DB=0
+
+# Cache Features (all disabled when CACHE_ENABLED=False)
+CACHE_ENABLE_WARMUP=False
+CACHE_ENABLE_METRICS=False
+CACHE_ENABLE_COMPRESSION=False
+CACHE_ENABLE_CIRCUIT_BREAKER=False
+CACHE_ENABLE_AUTO_INVALIDATION=False
+
+# Scheduler Configuration
+SCHEDULER_ENABLED=True
+SCHEDULER_MODE=redis
+SCHEDULER_REDIS_HOST=localhost
+SCHEDULER_REDIS_PORT=6379
+SCHEDULER_REDIS_DB=1
+SCHEDULER_REDIS_PASSWORD=None
+
+# Rate Limiting
+RATELIMIT_ENABLED=True
+RATELIMIT_STORAGE_URL=redis://localhost:6379/2
+
+# Logging
+LOG_TYPE=stream
+LOG_LEVEL=DEBUG
+LOG_DIR=logs
+APP_LOG_NAME=app.log
+WWW_LOG_NAME=www.log
+
+# Mail Configuration
+MAIL_ENABLED=False
+MAIL_SERVER=localhost
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_DEFAULT_SENDER=noreply@store3d.dev
+
+# Storage Configuration
+STORAGE=LOCAL
+UPLOAD_FOLDER=uploads
+
+# Security
+BCRYPT_LOG_ROUNDS=4
+WTF_CSRF_ENABLED=True
+
+# Swagger
+SWAGGER_ENABLED=True

@@ -1,0 +1,294 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: transaction
+  description: Operations about Transaction
+
+paths:
+  /transactions/:
+    get:
+      tags:
+      - transaction
+      summary: Get All Transactions
+      description: This can only be done by the logged in user.
+      operationId: GetTransactions
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - transaction
+      summary: Create transaction
+      description: This can only be done by the logged in user.
+      operationId: CreateTransaction
+      requestBody:
+        description: Create transaction object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtTransaction'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/{id}:
+    get:
+      tags:
+      - transaction
+      summary: Get transaction
+      description: This can only be done by the logged in user.
+      operationId: getTransactionById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - transaction
+      summary: Delete transaction
+      description: This can only be done by the logged in user.
+      operationId: delete_transaction
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - transaction
+      summary: Updated Transaction
+      description: This can only be done by the logged in user.
+      operationId: update_transaction
+      parameters:
+      - name: id
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated transaction object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtTransaction'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        from_location_id:
+          type: string
+          format: uuid
+        to_location_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          format: int32
+        transaction_type:
+          type: string
+          enum:
+          - PURCHASE
+          - SALE
+          - TRANSFER
+          - RETURN
+          - DAMAGE
+          - LOSS
+          - STOCK_ADJUSTMENT
+          - EXPIRY
+          - PROMOTION
+          - INTERNAL_USE
+          - VENDOR_RETURN
+        transaction_date:
+          type: string
+          format: date-time
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+        financial_year_id:
+          type: string
+          format: uuid
+    
+    Store3dtTransaction:
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        from_location_id:
+          type: string
+          format: uuid
+        to_location_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          format: int32
+        transaction_type:
+          type: string
+          enum:
+          - PURCHASE
+          - SALE
+          - TRANSFER
+          - RETURN
+          - DAMAGE
+          - LOSS
+          - STOCK_ADJUSTMENT
+          - EXPIRY
+          - PROMOTION
+          - INTERNAL_USE
+          - VENDOR_RETURN
+        transaction_date:
+          type: string
+          format: date-time
+        financial_year_id:
+          type: string
+          format: uuid
+
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

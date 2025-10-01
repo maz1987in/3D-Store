@@ -1,0 +1,371 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is a Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: staff
+  description: Operations about Staff
+
+paths:
+  /staffs/:
+    get:
+      tags:
+      - staff
+      summary: Get All Staffs
+      description: This can only be done by the logged-in user.
+      operationId: GetStaffs
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  staffs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Staff'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - staff
+      summary: Create staff
+      description: This can only be done by the logged-in user.
+      operationId: CreateStaff
+      requestBody:
+        description: Create staff object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtStaff'
+        required: true
+      responses:
+        201:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /staffs/{id}:
+    get:
+      tags:
+      - staff
+      summary: Get staff
+      description: This can only be done by the logged-in user.
+      operationId: getStaffById
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  staffs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Staff'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - staff
+      summary: Delete staff
+      description: This can only be done by the logged-in user.
+      operationId: deleteStaff
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - staff
+      summary: Update staff
+      description: This can only be done by the logged-in user.
+      operationId: updateStaff
+      parameters:
+      - name: id
+        in: path
+        description: ID that needs to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated staff object
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Store3dtStaff'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /staffs/{id}/reindex:
+    get:
+      tags:
+      - staff
+      summary: Reindex staff attachments
+      description: This can only be done by the logged-in user.
+      operationId: reindexStaff
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be reindexed
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Global'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /staffs/upload/{id}/{order}:
+    post:
+      tags:
+      - staff
+      summary: Upload staff attachments
+      description: This can only be done by the logged-in user.
+      operationId: uploadStaffAttachments
+      parameters:
+      - name: id
+        in: path
+        description: The id of the staff
+        required: true
+        schema:
+          type: string
+      - name: order
+        in: path
+        description: The order of the attachment
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        description: Upload staff attachments
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /staffs/upload/{id}:
+    delete:
+      tags:
+      - staff
+      summary: Delete staff attachments
+      description: This can only be done by the logged-in user.
+      operationId: deleteStaffAttachments
+      parameters:
+      - name: id
+        in: path
+        description: The id of the staff
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        nationality:
+          type: string
+        id_card_number:
+          type: string
+        expiry_date:
+          type: string
+          format: date-time
+        salary:
+          type: number
+          format: float
+        details:
+          type: object
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              file:
+                type: string
+        create_date:
+          type: string
+          format: date-time
+        modified_date:
+          type: string
+          format: date-time
+    
+    Store3dtStaff:
+      type: object
+      properties:
+        nationality:
+          type: string
+        id_card_number:
+          type: string
+        expiry_date:
+          type: string
+          format: date-time
+        salary:
+          type: number
+          format: float
+        details:
+          type: object
+        name:
+          type: object
+          properties:
+            ar:
+              type: string
+            en:
+              type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: binary
+
+    Global:
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header

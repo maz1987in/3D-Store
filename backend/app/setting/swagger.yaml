@@ -1,0 +1,266 @@
+openapi: 3.0.1
+info:
+  title: Store3d API
+  description: This is an Store3d API document
+  contact:
+    email: info@store3d.om
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://store3d-api.example.com/store3d/api/v1
+- url: /store3d/api/v1
+security:
+- basicAuth: []
+- JWT: []
+tags:
+- name: setting
+  description: Operations about Setting
+
+paths:
+  /settings/:
+    get:
+      tags:
+      - setting
+      summary: Get All Settings
+      description: This can only be done by the logged in user.
+      operationId: GetSettings
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Setting'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - setting
+      summary: Add Setting
+      description: This can only be done by the logged in user.
+      operationId: AddSetting
+      requestBody:
+        description: Add setting object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /settings/{key}:
+    get:
+      tags:
+      - setting
+      summary: Get setting
+      description: This can only be done by the logged in user.
+      operationId: getSettingBykey
+      parameters:
+      - name: key
+        in: path
+        description: The id that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+      - setting
+      summary: Delete setting
+      description: This can only be done by the logged in user.
+      operationId: deleteSetting
+      parameters:
+      - name: key
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+      - setting
+      summary: Updated Setting
+      description: This can only be done by the logged in user.
+      operationId: updateSetting
+      parameters:
+      - name: key
+        in: path
+        description: ID that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated setting object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+        required: true
+      responses:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      x-codegen-request-body-name: body
+  /settings/category/{category}:
+    get:
+      tags:
+      - setting
+      summary: Get setting
+      description: This can only be done by the logged in user.
+      operationId: getSettingByCategory
+      parameters:
+      - name: category
+        in: path
+        description: The model type that needs to get
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Setting'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /settings/reconfig:
+    get:
+      tags:
+      - setting
+      summary: Get Reconfig app Settings
+      description: This can only be done by the logged in user.
+      operationId: GetReconfigSettings
+      responses:
+        200:
+          description: successful operation
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    Setting:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        category:
+          type: string
+        last_modified:
+          type: string
+          format: date-time
+    JWTToken:
+      type: object
+      properties:
+        token:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role_id:
+          type: integer
+        role:
+          type: string
+    Global:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    Error:
+      required:
+      #- code
+      - message
+      type: object
+      properties:
+        #code:
+        #  type: string
+        message:
+          type: string
+          example: Authorization information is missing or invalid.
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    JWT:
+      type: apiKey
+      name: x-access-tokens
+      in: header
