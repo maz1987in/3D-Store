@@ -17,6 +17,35 @@ categories = Blueprint(__uri__, __name__)
 
 service = CategoryService()
 
+# Public endpoint for featured categories (no authentication required)
+@categories.route('/featured', methods=['GET'])
+@cross_origin()
+def get_featured_categories():
+    """Get featured categories for homepage - public endpoint"""
+    try:
+        from .model import Category
+        from app.utilities.db_utils import get_session_with_retries
+        
+        with get_session_with_retries() as session:
+            # Get active categories
+            categories_query = session.query(Category).filter(
+                Category.is_active == True
+            ).order_by(Category.create_date.desc()).limit(10)
+            
+            categories_list = categories_query.all()
+            
+            return jsonify({
+                'status': 200,
+                'message': 'Success',
+                'data': [category.json() for category in categories_list]
+            })
+    except Exception as e:
+        return jsonify({
+            'status': 500,
+            'message': f'Error retrieving featured categories: {str(e)}',
+            'data': []
+        }), 500
+
 @categories.route('/', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['category.show.all'])

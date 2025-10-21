@@ -18,7 +18,7 @@ from werkzeug.security import generate_password_hash
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from app import create_app
-from database import Base, db
+from database import Base
 from app.users.model import User
 from app.product.model import Product
 from app.category.model import Category
@@ -35,7 +35,7 @@ from app.rating.model import Rating
 from app.medias.model import Media
 from app.address.model import ShippingAddress
 from app.staff.model import Staff
-from app.security.model import Role, Permission, UserRoles, RolePermissions
+from app.users.model import Role, Permission, UserRoles, RolePermission
 from app.common.enum import UserTypeEnum, LanguageEnum, OrderStatusEnum, TransactionType
 
 

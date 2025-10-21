@@ -9,7 +9,7 @@ class UserCreateSchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     phone = fields.Str(validate=validate.Length(max=20))
     role_id = fields.UUID(allow_none=True)
-    is_active = fields.Bool(missing=True)
+    is_active = fields.Bool(load_default=True)
     
     @validates_schema
     def validate_password(self, data, **kwargs):

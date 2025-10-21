@@ -5,8 +5,8 @@ import uuid
 class CategoryCreateSchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     parent_id = fields.UUID(allow_none=True)
-    enable = fields.Bool(missing=True)
-    translations = fields.Dict(missing={})
+    enable = fields.Bool(load_default=True)
+    translations = fields.Dict(load_default={})
     icon = fields.Raw(allow_none=True)  # For file uploads
     
     @validates_schema

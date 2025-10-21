@@ -13,7 +13,7 @@ class ExpenseCreateSchema(Schema):
     project_id = fields.UUID(allow_none=True)
     expense_date = fields.DateTime(required=True)
     receipt = fields.Raw(allow_none=True)  # For file uploads
-    is_billable = fields.Bool(missing=False)
+    is_billable = fields.Bool(load_default=False)
     
     @validates_schema
     def validate_amount(self, data, **kwargs):
@@ -43,7 +43,7 @@ class ExpenseCategorySchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     description = fields.Str(validate=validate.Length(max=500))
     budget_limit = fields.Decimal(validate=validate.Range(min=0))
-    is_active = fields.Bool(missing=True)
+    is_active = fields.Bool(load_default=True)
 
 class ExpenseBudgetSchema(Schema):
     category_id = fields.UUID(required=True)

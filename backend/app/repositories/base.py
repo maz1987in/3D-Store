@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session, Query
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_filters import apply_pagination, apply_sort
 from app.utilities.db_utils import session_scope
-from app.common.error_handling import ResourceNotFoundError, DatabaseException
+from app.common.error_handling import ResourceNotFoundError
+from app.exceptions.base import DatabaseException
 from app.common.queries import create_sorters, filter_and_sort_query
 from app.common import filters_serialization
 from app.utilities.error_utils import handle_errors

@@ -1,5 +1,7 @@
 import sqlalchemy as sql
-from datetime import datetime, timezone, timezone
+from datetime import datetime, timezone
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.common.enum import QuoteStatusEnum
 from sqlalchemy_utils import UUIDType

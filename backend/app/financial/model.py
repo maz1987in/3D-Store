@@ -1,5 +1,7 @@
 import uuid
 import sqlalchemy as sql
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType
 from config import Config
 from app.common.enum import FiscalYearStatusEnum

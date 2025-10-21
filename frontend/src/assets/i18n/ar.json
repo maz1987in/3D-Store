@@ -1,0 +1,253 @@
+{
+  "common": {
+    "app_name": "متجر ثلاثي الأبعاد",
+    "welcome": "مرحباً",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "close": "إغلاق",
+    "search": "بحث",
+    "filter": "تصفية",
+    "sort": "ترتيب",
+    "refresh": "تحديث",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال"
+  },
+  
+  "nav": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "cart": "السلة",
+    "orders": "الطلبات",
+    "print_jobs": "مهام الطباعة",
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "admin": "الإدارة",
+    "seller": "بوابة البائع"
+  },
+  
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "remember_me": "تذكرني",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "no_account": "ليس لديك حساب؟",
+    "have_account": "لديك حساب بالفعل؟",
+    "first_name": "الاسم الأول",
+    "last_name": "اسم العائلة",
+    "phone": "رقم الهاتف",
+    "language": "اللغة المفضلة",
+    "accept_terms": "أوافق على شروط الخدمة وسياسة الخصوصية",
+    "login_success": "تم تسجيل الدخول بنجاح",
+    "register_success": "تم إنشاء الحساب بنجاح",
+    "invalid_credentials": "بريد إلكتروني أو كلمة مرور غير صحيحة",
+    "password_mismatch": "كلمات المرور غير متطابقة"
+  },
+  
+  "product": {
+    "products": "المنتجات",
+    "product_details": "تفاصيل المنتج",
+    "featured_products": "المنتجات المميزة",
+    "browse_products": "تصفح المنتجات",
+    "add_to_cart": "أضف إلى السلة",
+    "buy_now": "اشتر الآن",
+    "in_stock": "متوفر",
+    "out_of_stock": "غير متوفر",
+    "price": "السعر",
+    "description": "الوصف",
+    "category": "الفئة",
+    "material": "المادة",
+    "rating": "التقييم",
+    "reviews": "المراجعات",
+    "custom_print": "خدمة طباعة مخصصة",
+    "ready_made": "منتج جاهز",
+    "no_products": "لا توجد منتجات",
+    "view_details": "عرض التفاصيل",
+    "quick_view": "عرض سريع"
+  },
+  
+  "cart": {
+    "shopping_cart": "سلة التسوق",
+    "cart_empty": "سلة التسوق فارغة",
+    "add_to_cart": "أضف إلى السلة",
+    "remove_from_cart": "إزالة من السلة",
+    "update_cart": "تحديث السلة",
+    "clear_cart": "إفراغ السلة",
+    "subtotal": "المجموع الفرعي",
+    "packaging": "التغليف",
+    "shipping": "الشحن",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "quantity": "الكمية",
+    "proceed_to_checkout": "متابعة للدفع",
+    "continue_shopping": "متابعة التسوق",
+    "free_shipping": "شحن مجاني",
+    "free_shipping_note": "للطلبات فوق 50$"
+  },
+  
+  "checkout": {
+    "checkout": "إتمام الطلب",
+    "shipping_address": "عنوان الشحن",
+    "payment_method": "طريقة الدفع",
+    "review_order": "مراجعة الطلب",
+    "place_order": "تأكيد الطلب",
+    "order_summary": "ملخص الطلب",
+    "street_address": "عنوان الشارع",
+    "city": "المدينة",
+    "state": "الولاية/المحافظة",
+    "postal_code": "الرمز البريدي",
+    "country": "الدولة",
+    "cash_on_delivery": "الدفع عند الاستلام",
+    "credit_card": "بطاقة ائتمان/خصم",
+    "bank_transfer": "تحويل بنكي",
+    "order_placed": "تم تقديم الطلب بنجاح",
+    "order_failed": "فشل تقديم الطلب"
+  },
+  
+  "order": {
+    "orders": "الطلبات",
+    "order_details": "تفاصيل الطلب",
+    "order_number": "رقم الطلب",
+    "order_date": "تاريخ الطلب",
+    "order_status": "حالة الطلب",
+    "order_total": "إجمالي الطلب",
+    "order_items": "عناصر الطلب",
+    "order_timeline": "سجل الطلب",
+    "cancel_order": "إلغاء الطلب",
+    "download_invoice": "تحميل الفاتورة",
+    "track_order": "تتبع الطلب",
+    "no_orders": "لا توجد طلبات",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "processing": "قيد المعالجة",
+      "printing": "قيد الطباعة",
+      "completed": "مكتمل",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغى"
+    }
+  },
+  
+  "print_job": {
+    "print_jobs": "مهام الطباعة",
+    "upload_model": "رفع نموذج ثلاثي الأبعاد",
+    "model_file": "ملف النموذج",
+    "print_quality": "جودة الطباعة",
+    "estimated_time": "الوقت المقدر",
+    "estimated_cost": "التكلفة المقدرة",
+    "progress": "التقدم",
+    "status": {
+      "uploaded": "تم الرفع",
+      "queued": "في الانتظار",
+      "preparing": "قيد التحضير",
+      "printing": "قيد الطباعة",
+      "post_processing": "ما بعد المعالجة",
+      "quality_check": "فحص الجودة",
+      "packaging": "التغليف",
+      "completed": "مكتمل",
+      "failed": "فشل",
+      "cancelled": "ملغى"
+    },
+    "quality": {
+      "draft": "مسودة",
+      "standard": "قياسي",
+      "high": "عالي",
+      "ultra": "فائق"
+    }
+  },
+  
+  "dashboard": {
+    "dashboard": "لوحة التحكم",
+    "welcome": "مرحباً بعودتك",
+    "total_orders": "إجمالي الطلبات",
+    "print_jobs": "مهام الطباعة",
+    "pending_orders": "الطلبات المعلقة",
+    "completed": "المكتمل",
+    "recent_orders": "الطلبات الأخيرة",
+    "active_print_jobs": "مهام الطباعة النشطة",
+    "quick_actions": "إجراءات سريعة",
+    "statistics": "الإحصائيات"
+  },
+  
+  "profile": {
+    "my_profile": "ملفي الشخصي",
+    "edit_profile": "تعديل الملف",
+    "change_password": "تغيير كلمة المرور",
+    "account_settings": "إعدادات الحساب",
+    "personal_info": "المعلومات الشخصية",
+    "notifications": "الإشعارات",
+    "email_notifications": "إشعارات البريد الإلكتروني",
+    "sms_notifications": "الإشعارات النصية",
+    "order_updates": "تحديثات الطلب",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_password": "تأكيد كلمة المرور الجديدة",
+    "save_changes": "حفظ التغييرات",
+    "profile_updated": "تم تحديث الملف بنجاح",
+    "password_changed": "تم تغيير كلمة المرور بنجاح"
+  },
+  
+  "admin": {
+    "admin_panel": "لوحة الإدارة",
+    "dashboard": "لوحة المعلومات",
+    "products": "المنتجات",
+    "orders": "الطلبات",
+    "users": "المستخدمون",
+    "print_jobs": "مهام الطباعة",
+    "expenses": "المصروفات",
+    "sellers": "البائعون",
+    "reports": "التقارير",
+    "total_revenue": "إجمالي الإيرادات",
+    "total_users": "إجمالي المستخدمين",
+    "active_print_jobs": "مهام الطباعة النشطة"
+  },
+  
+  "seller": {
+    "seller_portal": "بوابة البائع",
+    "dashboard": "لوحة المعلومات",
+    "commissions": "العمولات",
+    "payments": "المدفوعات",
+    "customers": "العملاء",
+    "current_period_sales": "مبيعات الفترة الحالية",
+    "current_commission": "العمولة الحالية",
+    "pending_commission": "العمولة المعلقة",
+    "next_settlement": "التسوية القادمة",
+    "performance_overview": "نظرة عامة على الأداء"
+  },
+  
+  "errors": {
+    "page_not_found": "الصفحة غير موجودة",
+    "unauthorized": "الوصول مرفوض",
+    "server_error": "خطأ في الخادم",
+    "network_error": "خطأ في الشبكة",
+    "try_again": "يرجى المحاولة مرة أخرى",
+    "go_home": "العودة للرئيسية",
+    "contact_support": "اتصل بالدعم"
+  },
+  
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "email_invalid": "يرجى إدخال بريد إلكتروني صحيح",
+    "phone_invalid": "يرجى إدخال رقم هاتف صحيح",
+    "password_min_length": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "file_too_large": "حجم الملف يتجاوز الحد الأقصى المسموح",
+    "invalid_format": "صيغة الملف غير صالحة"
+  }
+}
+

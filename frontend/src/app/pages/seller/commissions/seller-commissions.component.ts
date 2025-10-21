@@ -1,0 +1,24 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MaterialModule } from '../../../shared/material.module';
+
+@Component({
+  selector: 'app-seller-commissions',
+  standalone: true,
+  imports: [CommonModule, MaterialModule],
+  template: `
+    <div class="seller-commissions">
+      <h1>Commission Tracking</h1>
+      <p>Commission tracking interface will be implemented here</p>
+    </div>
+  `,
+  styles: [`
+    .seller-commissions {
+      h1 {
+        margin: 0 0 1rem;
+      }
+    }
+  `]
+})
+export class SellerCommissionsComponent {}
+

@@ -11,7 +11,7 @@ from functools import wraps
 
 from .base_middleware import BaseMiddleware
 from app.users.service import UserService
-from app.common.error_handling import UnauthorizedError, ForbiddenError
+from app.exceptions.base import AuthenticationException, AuthorizationException
 from config import SecretKey
 
 SECRET_KEY = SecretKey().SECRET_KEY

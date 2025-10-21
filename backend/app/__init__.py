@@ -23,7 +23,7 @@ def create_app():
     app.json.ensure_ascii = False  # <-- this line saves the day
     app.json.mimetype = "application/json; charset=utf-8"  # <-- this could be also useful
     setup_config(app)
-    CORS(app)    
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)    
 
     make_translatable(options={
         'locales': list(app.config['AVAILABLE_LOCALES'].keys()),
@@ -135,10 +135,12 @@ def setup_log(app):
 def register_blueprints(self):
     """Register all blueprints"""
     from .security.login import login, signup
+    from .security.auth import auth
     from .utilities.email import mails
     from .common.health import common
 
     self.register_blueprint(common, url_prefix=self.config['BASE_URL'])#+ "common"
+    self.register_blueprint(auth, url_prefix=self.config['BASE_URL'] + "auth")
     self.register_blueprint(signup, url_prefix=self.config['BASE_URL'] + "signup")
     self.register_blueprint(login, url_prefix=self.config['BASE_URL'] + "login")  
     self.register_blueprint(mails, url_prefix=self.config['BASE_URL'] + "email")
@@ -198,11 +200,11 @@ def register_extensions(app):
         app.logger.info('limiter initialized')
         middleware.init_app(app) # Initialize middleware system
         app.logger.info('middleware system initialized')
-    cache_extension.init_app(app) # Initialize cache extension
-    app.logger.info('cache extension initialized')
-    
-    monitoring_extension.init_app(app) # Initialize monitoring extension
-    app.logger.info('monitoring extension initialized')
+        cache_extension.init_app(app) # Initialize cache extension
+        app.logger.info('cache extension initialized')
+        
+        monitoring_extension.init_app(app) # Initialize monitoring extension
+        app.logger.info('monitoring extension initialized')
         #thread_pool.start()
     except Exception as e:
         app.logger.error(e)

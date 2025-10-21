@@ -15,7 +15,7 @@ class SellerCreateSchema(Schema):
     bank_account = fields.Str(validate=validate.Length(max=100))
     commission_rate = fields.Decimal(validate=validate.Range(min=0, max=100))
     settlement_period = fields.Str(validate=validate.OneOf(['weekly', 'bi_weekly', 'monthly', 'quarterly']))
-    is_active = fields.Bool(missing=True)
+    is_active = fields.Bool(load_default=True)
     
     @validates_schema
     def validate_commission_rate(self, data, **kwargs):
@@ -43,7 +43,7 @@ class SellerCommissionSchema(Schema):
     commission_rate = fields.Decimal(required=True, validate=validate.Range(min=0, max=100))
     effective_date = fields.Date(required=True)
     end_date = fields.Date(allow_none=True)
-    is_active = fields.Bool(missing=True)
+    is_active = fields.Bool(load_default=True)
 
 class SellerPaymentSchema(Schema):
     seller_id = fields.UUID(required=True)
@@ -61,4 +61,4 @@ class SellerDocumentSchema(Schema):
     document_name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     file = fields.Raw(required=True)  # For file uploads
     expiry_date = fields.Date(allow_none=True)
-    is_verified = fields.Bool(missing=False)
+    is_verified = fields.Bool(load_default=False)

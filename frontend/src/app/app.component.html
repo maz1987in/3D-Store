@@ -1,28 +1,130 @@
-<mat-sidenav-container class="layout">
-  <mat-sidenav #sidenav mode="side" [opened]="true" class="sidenav">
-    <mat-nav-list>
-      <a mat-list-item routerLink="/products">Products</a>
-      <a mat-list-item routerLink="/orders">Orders</a>
-      <a mat-list-item routerLink="/upload">Upload</a>
-      <a mat-list-item routerLink="/preview">Preview</a>
-    </mat-nav-list>
-  </mat-sidenav>
+<!-- Main Navigation -->
+<mat-toolbar color="primary" class="main-toolbar">
+  <div class="toolbar-content">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <mat-icon>print</mat-icon>
+      <span>{{ title }}</span>
+    </a>
 
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="sidenav.toggle()" class="hide-desktop">
-        <mat-icon>menu</mat-icon>
+    <!-- Main Navigation Links -->
+    <nav class="main-nav">
+      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        Home
+      </a>
+      <a mat-button routerLink="/products" routerLinkActive="active">
+        Products
+      </a>
+      @if (isAuthenticated) {
+        <a mat-button routerLink="/print-jobs" routerLinkActive="active">
+          Print Jobs
+        </a>
+        <a mat-button routerLink="/orders" routerLinkActive="active">
+          Orders
+        </a>
+      }
+    </nav>
+
+    <span class="spacer"></span>
+
+    <!-- Right Side Actions -->
+    <div class="toolbar-actions">
+      <!-- Cart Icon -->
+      <button mat-icon-button routerLink="/cart" [matBadge]="cartSummary.items_count" [matBadgeHidden]="cartSummary.items_count === 0" matBadgeColor="accent">
+        <mat-icon>shopping_cart</mat-icon>
       </button>
-      <span class="title">3D Store</span>
-      <span class="spacer"></span>
-      <button mat-button routerLink="/products">Products</button>
-      <button mat-button routerLink="/orders">Orders</button>
-      <button mat-button routerLink="/upload">Upload</button>
-      <button mat-button routerLink="/preview">Preview</button>
-    </mat-toolbar>
 
-    <div class="content">
-      <router-outlet />
+      <!-- User Menu -->
+      @if (isAuthenticated && currentUser) {
+        <button mat-button [matMenuTriggerFor]="userMenu">
+          <mat-icon>person</mat-icon>
+          {{ currentUser.first_name }}
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item routerLink="/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            Dashboard
+          </button>
+          <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            Profile
+          </button>
+          <mat-divider></mat-divider>
+          @if (isAdmin()) {
+            <button mat-menu-item routerLink="/admin">
+              <mat-icon>admin_panel_settings</mat-icon>
+              Admin Panel
+            </button>
+          }
+          @if (isSeller()) {
+            <button mat-menu-item routerLink="/seller">
+              <mat-icon>store</mat-icon>
+              Seller Portal
+            </button>
+          }
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Logout
+          </button>
+        </mat-menu>
+      } @else {
+        <button mat-button routerLink="/login">
+          <mat-icon>login</mat-icon>
+          Login
+        </button>
+        <button mat-raised-button color="accent" routerLink="/register">
+          Sign Up
+        </button>
+      }
     </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</mat-toolbar>
+
+<!-- Main Content -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<footer class="main-footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>{{ title }}</h3>
+      <p>Professional 3D printing services and ready-made products</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a routerLink="/">Home</a></li>
+        <li><a routerLink="/products">Products</a></li>
+        <li><a routerLink="/about">About Us</a></li>
+        <li><a routerLink="/contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Service</h4>
+      <ul>
+        <li><a routerLink="/faq">FAQ</a></li>
+        <li><a routerLink="/shipping">Shipping Info</a></li>
+        <li><a routerLink="/returns">Returns</a></li>
+        <li><a routerLink="/support">Support</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Legal</h4>
+      <ul>
+        <li><a routerLink="/terms">Terms of Service</a></li>
+        <li><a routerLink="/privacy">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {{ currentYear }} 3D Store. All rights reserved.</p>
+  </div>
+</footer>

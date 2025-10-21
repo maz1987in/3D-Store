@@ -18,6 +18,37 @@ products = Blueprint(__uri__, __name__)
 
 service = ProductService()
 
+# Public endpoint for featured products (no authentication required)
+@products.route('/featured', methods=['GET'])
+@cross_origin()
+def get_featured_products():
+    """Get featured products for homepage - public endpoint"""
+    try:
+        from .model import Product
+        from app.utilities.db_utils import get_session_with_retries
+        
+        limit = request.args.get('limit', 6, type=int)
+        
+        with get_session_with_retries() as session:
+            # Get active and featured products, ordered by creation date
+            products_query = session.query(Product).filter(
+                Product.is_active == True
+            ).order_by(Product.create_date.desc()).limit(limit)
+            
+            products_list = products_query.all()
+            
+            return jsonify({
+                'status': 200,
+                'message': 'Success',
+                'data': [product.json() for product in products_list]
+            })
+    except Exception as e:
+        return jsonify({
+            'status': 500,
+            'message': f'Error retrieving featured products: {str(e)}',
+            'data': []
+        }), 500
+
 @products.route('/', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['product.show'])

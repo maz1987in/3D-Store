@@ -1,19 +1,35 @@
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('access_token');
-  let authReq: HttpRequest<unknown> = req;
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  if (token) {
-    authReq = req.clone({
+  // Get the auth token from the service
+  const authToken = authService.getToken();
+
+  // Clone the request and add the authorization header if token exists
+  if (authToken) {
+    req = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
+        'x-access-tokens': authToken
       }
     });
   }
 
-  return next(authReq);
+  // Handle the request
+  return next(req).pipe(
+    catchError((error) => {
+      // Handle 401 Unauthorized errors
+      if (error.status === 401) {
+        authService.logout();
+        router.navigate(['/login']);
+      }
+      return throwError(() => error);
+    })
+  );
 };
-
-export const AUTH_INTERCEPTOR_PROVIDER = { provide: HTTP_INTERCEPTORS, useValue: authInterceptor, multi: true };

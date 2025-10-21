@@ -80,6 +80,31 @@ class UserRepository(BaseRepository[User]):
             return session.query(User).filter_by(phone=phone).first()
     
     @handle_errors("UserRepository")
+    def get_user_by_email_or_phone(self, email: str, phone: str, session: Optional[Session] = None) -> Optional[User]:
+        """
+        Retrieve a user by email or phone number.
+        
+        Args:
+            email: The email address to search for
+            phone: The phone number to search for
+            session: Optional database session (if None, creates a new one)
+            
+        Returns:
+            The user if found, None otherwise
+        """
+        from sqlalchemy import or_
+        
+        if session:
+            return session.query(User).filter(
+                or_(User.email == email, User.phone == phone)
+            ).first()
+        
+        with session_scope() as session:
+            return session.query(User).filter(
+                or_(User.email == email, User.phone == phone)
+            ).first()
+    
+    @handle_errors("UserRepository")
     def get_user_with_roles(self, user_id: str, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
         """
         Retrieve a user with their associated roles.

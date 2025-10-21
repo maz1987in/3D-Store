@@ -5,6 +5,5 @@ from app import create_app
 app = create_app()
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get('FLASK_RUN_PORT', 5000))
-    app.run(port=port)
+    # Using port 5001 because port 5000 is used by macOS AirPlay
+    app.run(debug=True, port=5001, host='0.0.0.0')

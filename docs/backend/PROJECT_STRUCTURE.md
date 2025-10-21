@@ -221,6 +221,7 @@ module_name/
 ├── repository.py       # Data access layer (Repository pattern)
 ├── schemas.py          # Input validation schemas (Marshmallow)
 ├── swagger.yaml        # API documentation
+├── test.py             # Unit Test
 └── README.md           # Module-specific documentation
 ```
 
