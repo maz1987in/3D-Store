@@ -203,8 +203,12 @@ def register_extensions(app):
         cache_extension.init_app(app) # Initialize cache extension
         app.logger.info('cache extension initialized')
         
-        monitoring_extension.init_app(app) # Initialize monitoring extension
-        app.logger.info('monitoring extension initialized')
+        # Initialize monitoring extension if available
+        if monitoring_extension is not None:
+            monitoring_extension.init_app(app)
+            app.logger.info('monitoring extension initialized')
+        else:
+            app.logger.warning('monitoring extension not available - module not implemented yet')
         #thread_pool.start()
     except Exception as e:
         app.logger.error(e)

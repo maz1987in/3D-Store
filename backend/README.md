@@ -422,27 +422,19 @@ For detailed testing documentation, see [test/README.md](test/README.md).
 
 ## Monitoring and Observability
 
-The application includes a comprehensive monitoring and observability system:
+The application includes basic monitoring capabilities:
 
-### Monitoring Components
+### Available Monitoring
 
-- **Structured Logging**: Multi-output logging with JSON formatting
-- **Metrics Collection**: System and application performance metrics
-- **Health Monitoring**: Comprehensive health checks and status monitoring
-- **Performance Tracking**: Request timing and resource usage tracking
-- **Error Tracking**: Error aggregation and categorization
-- **Alerting**: Multi-channel notification system (Email, Slack, Webhook, SMS)
-- **Insights**: Business intelligence and analytics
+- **Health Checks**: Basic application health endpoint
+- **Logging**: Structured logging with configurable outputs
+- **Error Tracking**: Sentry integration for error monitoring (optional)
 
 ### Monitoring Endpoints
 
 - **Health**: `GET /health` - Basic health check
-- **Metrics**: `GET /monitoring/metrics` - All metrics
-- **Performance**: `GET /monitoring/performance` - Performance summary
-- **Errors**: `GET /monitoring/errors` - Error summary
-- **Alerts**: `GET /monitoring/alerts` - Recent alerts
-- **Insights**: `GET /monitoring/insights` - Recent insights
-- **Dashboard**: `GET /monitoring/dashboard` - Comprehensive dashboard
+- **Database Health**: `GET /health/database` - Database connectivity check
+- **Cache Health**: `GET /cache/health` - Cache system health (if enabled)
 
 ### Configuration
 
@@ -450,24 +442,20 @@ The application includes a comprehensive monitoring and observability system:
 # Logging Configuration
 LOG_LEVEL=INFO
 LOG_FORMAT=json
-LOG_CONSOLE_ENABLED=True
-LOG_FILE_ENABLED=True
+LOG_TYPE=stream
+WWW_LOG_ENABLE=True
+APP_LOG_NAME=app.log
+WWW_LOG_NAME=www.log
 
-# Alert Configuration
-ALERT_EMAIL_SMTP_SERVER=smtp.gmail.com
-ALERT_EMAIL_TO=admin@store3d.com,ops@store3d.com
-ALERT_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+# Error Tracking (Optional)
+SENTRY=False
+SENTRY_DSN=your_sentry_dsn
+SENTRY_TRACES_SAMPLE_RATE=1.0
 ```
 
-### Demo
+### Future Enhancements
 
-Run the monitoring demo to see all features in action:
-
-```bash
-python app/examples/monitoring_demo.py
-```
-
-For detailed monitoring documentation, see [app/monitoring/README.md](app/monitoring/README.md).
+A comprehensive monitoring module with metrics collection, alerting, and dashboards is planned for future implementation.
 
 ## Contributing
 

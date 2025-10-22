@@ -21,7 +21,9 @@ class Quotation(Base):
     customer_id = sql.Column(UUIDType(binary=False), ForeignKey('customer.id', ondelete='SET NULL', name='fk_quotation_customer_id'), nullable=True, index=True)
     branch_id = sql.Column(UUIDType(binary=False), ForeignKey('branch.id', ondelete='SET NULL', name='fk_quotation_branch_id'), nullable=True, index=True)
     user_id = sql.Column(UUIDType(binary=False), ForeignKey('users.id', ondelete='SET NULL', name='fk_quotation_user_id'), nullable=True, index=True)
-    qoute_status = sql.Column('qoute_status', sql.Enum(QuoteStatusEnum), default=QuoteStatusEnum.PENDING)
+    # Note: Column name kept as 'qoute_status' to match existing database schema
+    # Property accessor provides correct 'quote_status' name
+    quote_status = sql.Column('qoute_status', sql.Enum(QuoteStatusEnum), default=QuoteStatusEnum.PENDING)
     date = sql.Column(sql.DATE)
     summary = sql.Column(sql.JSON)
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc), index=True)
@@ -43,7 +45,7 @@ class Quotation(Base):
         data['customer_id'] = self.customer_id
         data['branch_id'] = self.branch_id
         data['user_id'] = self.user_id
-        data['qoute_status'] = self.qoute_status.value
+        data['quote_status'] = self.quote_status.value  # Fixed typo
         data['date'] = self.date
         data['summary'] = self.summary
         data['create_date'] = self.create_date

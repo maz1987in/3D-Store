@@ -26,7 +26,7 @@ from app.rating.model import Rating
 from app.medias.model import Media
 from app.address.model import ShippingAddress
 from app.staff.model import Staff
-from app.security.model import Role, Permission, UserRoles, RolePermissions
+from app.users.model import Role, Permission, UserRoles, RolePermission
 from app.common.enum import UserTypeEnum, LanguageEnum, OrderStatusEnum, TransactionType
 
 

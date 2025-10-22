@@ -43,7 +43,6 @@ def get_city(filter, id):
 @cities.route('/', methods=['POST'])
 #@cross_origin()
 @permissions.has_permission(['city.add'])
-@roles.token_required
 def add_city(self):
     """Create a new city"""
     if not request.json:
@@ -60,7 +59,6 @@ def add_city(self):
 @cities.route('/<id>', methods=['PATCH'])
 #@cross_origin()
 @permissions.has_permission(['city.edit'])
-@roles.token_required
 def update_city(self, id):
     """Update an existing city"""
     if not is_valid_uuid(id):
@@ -75,7 +73,6 @@ def update_city(self, id):
 @cities.route('/<id>', methods=['DELETE'])
 #@cross_origin()
 @permissions.has_permission(['city.delete'])
-@roles.token_required
 def delete_city(self, id):
     """Delete a city"""
     if not is_valid_uuid(id):

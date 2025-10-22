@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import json
 import jwt
 from app.common.json_classes import Oauth
@@ -13,6 +13,9 @@ from requests_oauthlib import OAuth1Session, OAuth1
 
 from app.security import roles, permissions
 from app.common import filters
+from app.utils.response import APIResponse
+from app.decorators.validation import validate_json
+from .schemas import UserCreateSchema, UserUpdateSchema, PasswordChangeSchema, RoleCreateSchema, PermissionCreateSchema
 from app.utilities.common_utils import get_random_digits_value
 from app.utilities.request_utils import dump_request
 
@@ -29,18 +32,20 @@ service = UserService()
 
 @users.route('/', methods=['GET'])
 #@cross_origin()
-#@permissions.has_permission(['user.show.all'])
-@roles.token_required
+@permissions.has_permission(['user.show.all'])
 @filters.filters
-def get_users(filter,self):
-    result , status = service.get_users(filter)
-    return jsonify(result), status
+def get_users(self, filter):
+    result, status = service.get_users(filter)
+    if status == 200:
+        return APIResponse.success(result, "Users retrieved successfully")
+    return APIResponse.error("Failed to retrieve users", status_code=status)
 
 @users.route('/type/<user_type>', methods=['GET'])
 #@cross_origin()
 @permissions.has_permission(['user.show.all'])
 def get_users_by_user_type(self, user_type):
-    return jsonify({'users': service.get_users_by_user_type(user_type)})
+    users = service.get_users_by_user_type(user_type)
+    return APIResponse.success({'users': users}, f"Users of type {user_type} retrieved successfully")
 
 
 @users.route('/role/<role>', methods=['GET'])
@@ -58,11 +63,15 @@ def get_user(self, id):
 
 @users.route('/<id>/password', methods=['POST'])
 #@cross_origin()
-#@permissions.has_permission(['user.edit'])
-@roles.token_required
-def change_user_password(self, id):
-    message, status = service.update_user_password(id, request.json)
-    return jsonify({'msg': message}), status
+@permissions.has_permission(['user.edit'])
+@validate_json(PasswordChangeSchema)
+def change_user_password(self, validated_data, id):
+    message, status = service.update_user_password(id, validated_data)
+    if status == 200:
+        return APIResponse.success(message, "Password changed successfully")
+    elif status == 404:
+        return APIResponse.not_found("User not found")
+    return APIResponse.error(message, status_code=status)
 
 @users.route('/search/<param>', methods=['GET'])
 #@cross_origin()
@@ -115,19 +124,25 @@ def add_user_for_admin(self):
 
 @users.route('/<id>', methods=['DELETE'])
 #@cross_origin()
-#@permissions.has_permission(['user.delete'])
-@roles.token_required
+@permissions.has_permission(['user.delete'])
 def delete_user(self, id):
     message, status = service.delete_user(id)
-    return jsonify({'msg': message}), status
+    if status == 200:
+        return APIResponse.success(message, "User deleted successfully")
+    elif status == 404:
+        return APIResponse.not_found("User not found")
+    return APIResponse.error(message, status_code=status)
 
 @users.route('/admin/<id>', methods=['PATCH'])
 #@cross_origin()
-#@permissions.has_permission(['user.edit'])
-@roles.token_required
+@permissions.has_permission(['user.edit'])
 def edit_user_admin(self, id):
     message, status = service.update_user_admin(id, request.json)
-    return jsonify({'msg': message}), status
+    if status == 200:
+        return APIResponse.success(message, "User updated successfully")
+    elif status == 404:
+        return APIResponse.not_found("User not found")
+    return APIResponse.error(message, status_code=status)
 
 @users.route('/admin/loginas/<id>', methods=['POST'])
 #@cross_origin()
@@ -136,7 +151,7 @@ def login_as_user(self, id):
     user, status = service.get_user_role_by_id(id)
     if user is None or status != 200:
         return jsonify({'msg': 'User not found'}), 404
-    token = jwt.encode({'id': str(user.User.id), 'exp' : datetime.now(timezone.utc) + datetime.timedelta(days=BaseConfig.JWT_EXPIRATION_DELTA)}, SECRET_KEY, "HS256")
+        token = jwt.encode({'id': str(user.User.id), 'exp': datetime.now(timezone.utc) + timedelta(days=BaseConfig.JWT_EXPIRATION_DELTA)}, SECRET_KEY, algorithm="HS256")
 
     return jsonify({ 'token' : token, 'id' : str(user.User.id), 'user_details': user.User.user_details, 'phone': user.User.phone, 'email': user.User.email, 'type': user.Role.name, 'mobile_confirmed_at': user.User.mobile_confirmed_at, 'email_confirmed_at': user.User.email_confirmed_at, 'id_flag': True if user.User.user_id_image else False}), 200
 
@@ -144,53 +159,62 @@ def login_as_user(self, id):
 
 @users.route('/disable/<id>', methods=['PATCH'])
 #@cross_origin()
-#@permissions.has_permission(['user.disable'])
-@roles.token_required
+@permissions.has_permission(['user.disable'])
 def disable_user(self, id):
     message, status = service.disable_user(id)
-    return jsonify({'msg': message}), status
+    if status == 200:
+        return APIResponse.success(message, "User disabled successfully")
+    elif status == 404:
+        return APIResponse.not_found("User not found")
+    return APIResponse.error(message, status_code=status)
 
 @users.route('/enable/<id>', methods=['PATCH'])
 #@cross_origin()
-#@permissions.has_permission(['user.disable'])
-@roles.token_required
+@permissions.has_permission(['user.disable'])
 def enable_user(self, id):
     message, status = service.enable_user(id)
-    return jsonify({'msg': message}), status
+    if status == 200:
+        return APIResponse.success(message, "User enabled successfully")
+    elif status == 404:
+        return APIResponse.not_found("User not found")
+    return APIResponse.error(message, status_code=status)
 
 ## roles ##
 @users.route('/roles', methods=['GET'])
 #@cross_origin()
-#@permissions.has_permission(['role.show'])
-@roles.token_required
+@permissions.has_permission(['role.show'])
 def get_roles(self):
-    return jsonify({'roles': service.get_roles()})
+    roles = service.get_roles()
+    return APIResponse.success({'roles': roles}, "Roles retrieved successfully")
 
 @users.route('/roles', methods=['POST'])
 #@cross_origin()
-#@permissions.has_permission(['role.add'])
-@roles.token_required
-def add_role(self):
-    if not request.json:
-        abort(404)    
-    role_id, status = service.add_role(request.json)
-    return jsonify({'role_id': role_id}), status
+@permissions.has_permission(['role.add'])
+@validate_json(RoleCreateSchema)
+def add_role(self, validated_data):
+    role_id, status = service.add_role(validated_data)
+    if status == 200 or status == 201:
+        return APIResponse.created({'role_id': role_id}, "Role created successfully")
+    return APIResponse.error("Failed to create role", status_code=status)
 
 @users.route('/roles/<id>', methods=['PATCH'])
 #@cross_origin()
-#@permissions.has_permission(['role.edit'])
-@roles.token_required
+@permissions.has_permission(['role.edit'])
 def update_role(self, id):
     message, status = service.update_role(id, request.json)
-    return jsonify({'msg': message}), status
+    if status == 200:
+        return APIResponse.success(message, "Role updated successfully")
+    elif status == 404:
+        return APIResponse.not_found("Role not found")
+    return APIResponse.error(message, status_code=status)
 
 ## permissions ##
 @users.route('/permissions', methods=['GET'])
 #@cross_origin()
-#@permissions.has_permission(['permission.show'])
-@roles.token_required
+@permissions.has_permission(['permission.show'])
 def get_permissions(self):
-    return jsonify({'permissions': service.get_permissions()})
+    permissions = service.get_permissions()
+    return APIResponse.success({'permissions': permissions}, "Permissions retrieved successfully")
 
 @users.route('/permissions', methods=['POST'])
 #@cross_origin()

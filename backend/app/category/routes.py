@@ -79,7 +79,6 @@ def get_categories_dependency(self, parent_id):
 @categories.route('/', methods=['POST'])
 @cross_origin()
 @permissions.has_permission(['category.add'])
-@roles.token_required
 @validate_form_data(CategoryCreateSchema)
 def add_category(self, validated_data):
     message, status = service.create_category(validated_data, request.files['icon'] if 'icon' in request.files else None)
@@ -91,7 +90,6 @@ def add_category(self, validated_data):
 @categories.route('/<id>', methods=['PATCH'])
 @cross_origin()
 @permissions.has_permission(['category.edit'])
-@roles.token_required
 @validate_form_data(CategoryUpdateSchema)
 def update_category(self, validated_data, id):
     if not is_valid_uuid(id):
@@ -105,7 +103,6 @@ def update_category(self, validated_data, id):
 @categories.route('/<id>', methods=['DELETE'])
 @cross_origin()
 @permissions.has_permission(['category.delete'])
-@roles.token_required
 def delete_category(self, id):
     if not is_valid_uuid(id):
         return APIResponse.not_found("Invalid category ID format")

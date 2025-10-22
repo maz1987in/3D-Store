@@ -21,7 +21,6 @@ service = OrderService()
 @orders.route('/', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['order.show'])
-@roles.token_required
 @filters.filters
 def get_all_orders(filter,self):
     orders, status = service.get_orders(None,filter)
@@ -33,7 +32,6 @@ def get_all_orders(filter,self):
 @orders.route('/<id>', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['order.show'])
-@roles.token_required
 @filters.filters
 def get_order(filter,self, id):
     orders, status = service.get_orders(id, filter)
@@ -45,7 +43,6 @@ def get_order(filter,self, id):
 @orders.route('/', methods=['POST'])
 @cross_origin()
 @permissions.has_permission(['order.add'])
-@roles.token_required
 @validate_json(OrderCreateSchema)
 def add_order(self, validated_data):
     message, status = service.create_order(validated_data)
@@ -57,7 +54,6 @@ def add_order(self, validated_data):
 @orders.route('/<id>', methods=['PATCH'])
 @cross_origin()
 @permissions.has_permission(['order.edit'])
-@roles.token_required
 @validate_json(OrderUpdateSchema)
 def update_order(self, validated_data, id):
     message, status = service.update_order(id, validated_data)
@@ -70,7 +66,6 @@ def update_order(self, validated_data, id):
 @orders.route('/<id>', methods=['DELETE'])
 @cross_origin()
 @permissions.has_permission(['order.delete'])
-@roles.token_required
 def delete_order(self, id):
     message, status = service.delete_order(id)
     if status == 200:

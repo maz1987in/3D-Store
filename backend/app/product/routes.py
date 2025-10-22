@@ -52,7 +52,6 @@ def get_featured_products():
 @products.route('/', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['product.show'])
-@roles.token_required
 @filters.filters
 def get_all_products(filter, self):
     products, status = service.get_products(None,filter)
@@ -64,7 +63,6 @@ def get_all_products(filter, self):
 @products.route('/<id>', methods=['GET'])
 @cross_origin()
 @permissions.has_permission(['product.show'])
-@roles.token_required
 @filters.filters
 def get_product(filter,self, id):
     products, status = service.get_products(id, filter)
@@ -76,7 +74,6 @@ def get_product(filter,self, id):
 @products.route('/', methods=['POST'])
 @cross_origin()
 @permissions.has_permission(['product.add'])
-@roles.token_required
 @validate_form_data(ProductCreateSchema)
 def add_product(self, validated_data):
     message, status = service.create_product(validated_data, request.files)
@@ -88,7 +85,6 @@ def add_product(self, validated_data):
 @products.route('/<id>', methods=['PATCH'])
 @cross_origin()
 @permissions.has_permission(['product.edit'])
-@roles.token_required
 @validate_form_data(ProductUpdateSchema)
 def update_product(self, validated_data, id):
     message, status = service.update_product(id, validated_data, request.files)
@@ -101,7 +97,6 @@ def update_product(self, validated_data, id):
 @products.route('/<id>', methods=['DELETE'])
 @cross_origin()
 @permissions.has_permission(['product.delete'])
-@roles.token_required
 def delete_product(self, id):
     message, status = service.delete_product(id)
     if status == 200:
@@ -111,7 +106,6 @@ def delete_product(self, id):
 
 @products.route('/<id>/reindex', methods=['GET'])
 @permissions.has_permission(['product.show.all','product.show.own'])
-@roles.token_required
 def reindex_product(self,id):
     response, status = service.reindex_product_images_and_attachments(id)
     if status == 200:
@@ -122,7 +116,6 @@ def reindex_product(self,id):
 @products.route('/upload/<type>/<id>/<int:order>',defaults={'new':None}, methods=['POST'])
 @products.route('/upload/<type>/<id>/<int:order>/<new>', methods=['POST'])
 @permissions.has_permission(['product.add.all','product.add.own'])
-@roles.token_required
 def product_upload_file(self,type,id,order,new=None):
     if not request.files:
         return APIResponse.error("No files provided", status_code=400)
@@ -142,7 +135,6 @@ def product_upload_file(self,type,id,order,new=None):
 
 @products.route('/upload/<id>', methods=['DELETE'])
 @permissions.has_permission(['product.add.all','product.add.own'])
-@roles.token_required
 def product_delete_upload_file(self,id):
     message, status = service.delete_products_file(id)
     if status == 200:

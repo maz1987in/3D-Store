@@ -73,7 +73,7 @@ def role_required(role):
                 return jsonify({'message': 'a valid token is missing'}), 401
 
             try:
-                data = jwt.decode(token, SECRET_KEY, "HS256")
+                data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
                 
                 current_user,status = user_service.get_user_by_id(data['id'])
                 

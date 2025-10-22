@@ -44,7 +44,8 @@ class BaseConfig(object):
     HOST_URL = os.getenv('HOST_URL','http://localhost:5000')
     SERVER_NAME = os.getenv('SERVER_NAME',HOST_URL.split('//')[1])
     WEBSITE_URL = os.getenv('WEBSITE_URL','http://localhost:4200')
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS','*')
+    # Default to WEBSITE_URL for security. Use '*' only if explicitly set in environment
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', WEBSITE_URL)
     #DATABASE_URL = os.getenv('DATABASE_URL','sqlite:///store3d.sqlite3')
     BASE_URL = os.getenv('BASE_URL','/store3d/api/v1/')
     DATABASE_URL = ''
@@ -55,10 +56,12 @@ class BaseConfig(object):
     DB_CONNECTION_NAME = os.getenv('DB_CONNECTION_NAME')
     DB_HOST = os.getenv('DB_HOST','127.0.0.1:3306')
     VERSION = os.getenv('VERSION','1.0.0')
-    DB_POOL_SIZE = int(os.getenv('DB_POOL_SIZE',50))
-    DB_MAX_OVERFLOW = int(os.getenv('DB_MAX_OVERFLOW',60))
-    DB_POOL_TIMEOUT = int(os.getenv('DB_POOL_TIMEOUT',30))
-    DB_POOL_RECYCLE = int(os.getenv('DB_POOL_RECYCLE',1800))
+    # Database pool configuration - defaults optimized for development
+    # For production, set higher values via environment variables
+    DB_POOL_SIZE = int(os.getenv('DB_POOL_SIZE', 10))  # Lower default for dev
+    DB_MAX_OVERFLOW = int(os.getenv('DB_MAX_OVERFLOW', 20))  # Lower default for dev
+    DB_POOL_TIMEOUT = int(os.getenv('DB_POOL_TIMEOUT', 30))
+    DB_POOL_RECYCLE = int(os.getenv('DB_POOL_RECYCLE', 3600))  # 1 hour
     # Common options for all databases
     db_common_options = {
         'pool_pre_ping': True,
@@ -115,8 +118,14 @@ class BaseConfig(object):
 class SecretKey(object):
     __skip__ = ['SECRET_KEY','SECURITY_PASSWORD_SALT']
     #DEBUG = os.getenv('DEBUG','True')
-    SECRET_KEY = os.getenv('SECRET_KEY','_5m@rT0rLab_1Syyo')
-    SECURITY_PASSWORD_SALT = os.getenv('SECURITY_PASSWORD_SALT','maz_@flask968')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECURITY_PASSWORD_SALT = os.getenv('SECURITY_PASSWORD_SALT')
+    
+    # Validate that secrets are provided
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable must be set. Please configure your .env file.")
+    if not SECURITY_PASSWORD_SALT:
+        raise ValueError("SECURITY_PASSWORD_SALT environment variable must be set. Please configure your .env file.")
 
 class FileUploadConfig(object):
     UPLOAD_STORAGE = os.getenv('UPLOAD_STORAGE','LOCAL')
@@ -235,7 +244,7 @@ class CachingConfig(object):
     #CACHE_MEMCACHED_USERNAME = os.getenv('CACHE_MEMCACHED_USERNAME', '')
     #CACHE_MEMCACHED_PASSWORD = os.getenv('CACHE_MEMCACHED_PASSWORD', '')
     CACHE_REDIS_HOST = os.getenv('CACHE_REDIS_HOST', 'localhost')
-    CACHE_REDIS_PORT = int(os.getenv('CACHE_REDIS_PORT	', 6379))
+    CACHE_REDIS_PORT = int(os.getenv('CACHE_REDIS_PORT', 6379))
     CACHE_REDIS_PASSWORD = os.getenv('CACHE_REDIS_PASSWORD', None)
     CACHE_REDIS_DB = int(os.getenv('CACHE_REDIS_DB', 0))
     #CACHE_REDIS_SENTINELS = os.getenv('CACHE_REDIS_SENTINELS', '')

@@ -17,6 +17,15 @@ from werkzeug.security import generate_password_hash
 # Add the backend directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+# Set required environment variables BEFORE importing app modules
+# This prevents ValueError when config.py is loaded
+os.environ['TESTING'] = 'True'
+os.environ['SECRET_KEY'] = 'test_secret_key_for_testing_12345678'
+os.environ['SECURITY_PASSWORD_SALT'] = 'test_salt_for_testing_12345678'
+os.environ['DB_TYPE'] = 'sqlite'
+os.environ['CACHE_ENABLED'] = 'False'
+os.environ['SCHEDULER_ENABLED'] = 'False'
+
 from app import create_app
 from database import Base
 from app.users.model import User
@@ -45,18 +54,21 @@ def app():
     # Create a temporary database file
     db_fd, db_path = tempfile.mkstemp()
     
-    # Configure test database
-    os.environ['TESTING'] = 'True'
-    os.environ['DATABASE_URL'] = f'sqlite:///{db_path}'
+    # Configure test database path (other env vars already set at module level)
+    os.environ['DB_DATABASE_NAME'] = db_path
     
-    app = create_app('testing')
+    # Import engine from database module
+    from database import engine, Base as DatabaseBase
+    
+    # Create app without parameters (create_app doesn't accept parameters)
+    app = create_app()
     
     with app.app_context():
         # Create all tables
-        Base.metadata.create_all(bind=db.engine)
+        DatabaseBase.metadata.create_all(bind=engine)
         yield app
         # Clean up
-        Base.metadata.drop_all(bind=db.engine)
+        DatabaseBase.metadata.drop_all(bind=engine)
     
     os.close(db_fd)
     os.unlink(db_path)
@@ -71,8 +83,11 @@ def client(app):
 @pytest.fixture
 def db_session(app):
     """Create a database session for testing."""
+    from database import Session
     with app.app_context():
-        yield db.session
+        session = Session()
+        yield session
+        session.close()
 
 
 @pytest.fixture

@@ -28,7 +28,7 @@ def has_permission(permission_names):
                 return jsonify({'message': 'a valid token is missing'}), 401
 
             try:
-                data = jwt.decode(token, SECRET_KEY, "HS256")
+                data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
                 current_user = user_service.get_user_by_id(data['id'])
                 g.user = current_user
                 g.owner = not_exisit_in_request(data,'owner',g.user.id)

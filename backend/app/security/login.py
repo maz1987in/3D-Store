@@ -28,9 +28,9 @@ service = UserService()
 def log_user_login(data):
     service.user_logins(data)
 
-# login by both mbile or email
+# login by both mobile or email
 @login.route('/', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("5 per minute;20 per hour")  # Enhanced: per-minute and per-hour limits
 def login_any():
     auth = request.authorization
     now = datetime.now(timezone.utc)
@@ -63,7 +63,7 @@ def login_any():
     return make_response('could not verify', 401, {'WWW.Authentication': 'Basic realm: "login required"'})
 
 @login.route('/admin', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("5 per minute;20 per hour")  # Enhanced: per-minute and per-hour limits
 def login_admin():
     auth = request.authorization
     now = datetime.now(timezone.utc)
@@ -118,7 +118,7 @@ def login_reset_password(self):
 
 @login.route('/forgotpassword/', methods=['POST'])
 #@cross_origin()
-@limiter.limit("5 per minute")
+@limiter.limit("3 per 15 minutes;10 per hour")  # Stricter for security
 def login_forgot_password():
     try:
         data = request.json
@@ -151,7 +151,7 @@ signup = Blueprint('signup', __name__)
 
 @signup.route('/', methods=['POST'])
 #@cross_origin()
-@limiter.limit("3 per minute")
+@limiter.limit("3 per minute;10 per hour")  # Enhanced: per-minute and per-hour limits
 def signup_user():
     if not request.json or not 'phone' in request.json:
         abort(404)

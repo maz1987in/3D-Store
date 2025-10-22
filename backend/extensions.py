@@ -59,5 +59,7 @@ from app.caching.extension import CacheExtension
 cache_extension = CacheExtension()
 
 # Monitoring System
-from app.monitoring.extension import MonitoringExtension
-monitoring_extension = MonitoringExtension()
+# TODO: Implement monitoring extension module
+# from app.monitoring.extension import MonitoringExtension
+# monitoring_extension = MonitoringExtension()
+monitoring_extension = None  # Placeholder until monitoring module is implemented

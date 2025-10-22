@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 from sqlalchemy.orm import Session
 from flask import Flask
 from app import create_app
-from database import db
 
 
 class BaseTestCase:
