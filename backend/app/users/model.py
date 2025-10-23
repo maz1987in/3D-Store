@@ -15,13 +15,13 @@ class User(Base):
     __tablename__ = 'users'
  
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    active = sql.Column('is_active', sql.Boolean(), nullable=False, server_default='0')
+    active = sql.Column('is_active', sql.Boolean(), nullable=False, server_default='0', index=True)
     
     username = sql.Column(sql.String(length=255), unique=True, nullable=False)
     phone = sql.Column(sql.String(255), nullable=False, unique=True)
     email = sql.Column(sql.String(255), nullable=True, unique=True)
-    user_type = sql.Column(sql.Enum(UserTypeEnum),server_default='USER')
-    language = sql.Column(sql.Enum(LanguageEnum),server_default='ARABIC')
+    user_type = sql.Column(sql.Enum(UserTypeEnum),server_default='USER', index=True)
+    language = sql.Column(sql.Enum(LanguageEnum),server_default='ARABIC', index=True)
     user_id = sql.Column(sql.String(255), nullable=True)
     user_id_image = sql.Column(UploadedFileField(upload_storage ='user'), nullable=True)
     # user details as an object (in JSON)
@@ -35,8 +35,8 @@ class User(Base):
     agree = sql.Column('is_agree', sql.Boolean(), nullable=False, server_default='0')
     agree_date = sql.Column(sql.DateTime())
 
-    create_date = sql.Column(sql.DateTime(), default=sql.func.now())
-    modified_date = sql.Column(sql.DateTime(), default=sql.func.now(), onupdate=sql.func.now())
+    create_date = sql.Column(sql.DateTime(), default=sql.func.now(), index=True)
+    modified_date = sql.Column(sql.DateTime(), default=sql.func.now(), onupdate=sql.func.now(), index=True)
     note = sql.Column(sql.String(length=255), server_default=None)
 
     # Define the relationship to Role via UserRoles
@@ -139,8 +139,8 @@ class UserRoles(Base):
     __tablename__ = 'user_roles'
 
     id = sql.Column(UUIDType(binary=False),default=uuid.uuid4, primary_key=True)
-    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE', name='fk_user_roles_user_id'))
-    role_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('roles.id', ondelete='CASCADE', name='fk_user_roles_role_id'))
+    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE', name='fk_user_roles_user_id'), index=True)
+    role_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('roles.id', ondelete='CASCADE', name='fk_user_roles_role_id'), index=True)
     def json(self):
         data = {}
         data["id"] = self.id

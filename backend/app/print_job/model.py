@@ -27,8 +27,8 @@ class PrintJob(Base):
     __tablename__ = 'print_jobs'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    order_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
-    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    order_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('order.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
     
     # 3D Model file
     model_file = sql.Column(UploadedFileField, nullable=False)
@@ -37,7 +37,7 @@ class PrintJob(Base):
     model_file_type = sql.Column(sql.String(50), nullable=False)  # STL, OBJ, 3MF
     
     # Print specifications
-    material_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_materials.id'), nullable=False)
+    material_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_materials.id'), nullable=False, index=True)
     print_settings_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_settings.id'), nullable=False)
     packaging_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('product_packaging.id'), nullable=True)
     
@@ -53,9 +53,9 @@ class PrintJob(Base):
     estimated_cost = sql.Column(sql.Numeric(10, 4), nullable=True)  # Estimated total cost
     
     # Status and tracking
-    status = sql.Column(sql.Enum(PrintJobStatusEnum), default=PrintJobStatusEnum.UPLOADED)
+    status = sql.Column(sql.Enum(PrintJobStatusEnum), default=PrintJobStatusEnum.UPLOADED, index=True)
     progress_percentage = sql.Column(sql.Integer, default=0)
-    assigned_printer_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('printers.id'), nullable=True)
+    assigned_printer_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('printers.id'), nullable=True, index=True)
     assigned_user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id'), nullable=True)
     
     # Timestamps
@@ -190,9 +190,9 @@ class Printer(Base):
     nozzle_diameter = sql.Column(sql.Numeric(4, 2), nullable=False)  # Nozzle diameter in mm
     
     # Status and location
-    status = sql.Column(sql.String(20), default='available')  # available, busy, maintenance, offline
+    status = sql.Column(sql.String(20), default='available', index=True)  # available, busy, maintenance, offline
     location = sql.Column(sql.String(100), nullable=True)
-    branch_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('branch.id'), nullable=True)
+    branch_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('branch.id'), nullable=True, index=True)
     
     # Maintenance
     last_maintenance = sql.Column(sql.DateTime, nullable=True)
@@ -203,7 +203,7 @@ class Printer(Base):
     hourly_rate = sql.Column(sql.Numeric(10, 4), nullable=False, default=0)  # Cost per hour
     electricity_cost_per_hour = sql.Column(sql.Numeric(10, 4), nullable=False, default=0)
     
-    is_active = sql.Column(sql.Boolean, default=True)
+    is_active = sql.Column(sql.Boolean, default=True, index=True)
     create_date = sql.Column(sql.DateTime, default=lambda: datetime.now(timezone.utc))
     modified_date = sql.Column(sql.DateTime, default=lambda: datetime.now(timezone.utc))
 

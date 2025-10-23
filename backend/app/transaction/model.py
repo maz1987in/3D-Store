@@ -20,7 +20,7 @@ class Transaction(Base):
     from_location_id = sql.Column(UUIDType(binary=False), ForeignKey('branch.id', ondelete='SET NULL', name='fk_transaction_from_location_id'), nullable=True, index=True)
     to_location_id = sql.Column(UUIDType(binary=False), ForeignKey('branch.id', ondelete='SET NULL', name='fk_transaction_to_location_id'), nullable=True, index=True)
     quantity = sql.Column(sql.Integer, nullable=False, default=0)
-    transaction_type = sql.Column('transaction_type', sql.Enum(TransactionType), nullable=False)
+    transaction_type = sql.Column('transaction_type', sql.Enum(TransactionType), nullable=False, index=True)
     transaction_date = sql.Column(sql.DateTime, index=True, default=datetime.now(timezone.utc))
     financial_year_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('fiscal_year.id', ondelete='SET NULL', name='fk_transaction_fiscal_year_id'), nullable=True, index=True)
     

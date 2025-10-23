@@ -19,17 +19,17 @@ class Order(Base):
     order_number = sql.Column(sql.String(50), nullable=False, unique=True, index=True)  # Human-readable order number
     
     # Customer information
-    customer_id = sql.Column(UUIDType(binary=False), ForeignKey('customer.id', ondelete='CASCADE'), nullable=False)
+    customer_id = sql.Column(UUIDType(binary=False), ForeignKey('customer.id', ondelete='CASCADE'), nullable=False, index=True)
     
     # Order timing
     order_date = sql.Column(sql.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
-    expected_delivery = sql.Column(sql.DateTime, nullable=True)  # When the order is expected to be delivered
-    estimated_completion = sql.Column(sql.DateTime, nullable=True)  # When printing is estimated to complete
+    expected_delivery = sql.Column(sql.DateTime, nullable=True, index=True)  # When the order is expected to be delivered
+    estimated_completion = sql.Column(sql.DateTime, nullable=True, index=True)  # When printing is estimated to complete
     
     # Order status and type
-    status = sql.Column(sql.Enum(OrderStatusEnum), nullable=False, default=OrderStatusEnum.PENDING)
-    order_type = sql.Column(sql.String(50), nullable=False, default='print_service')  # 'print_service', 'ready_made', 'mixed'
-    priority = sql.Column(sql.String(20), nullable=False, default='normal')  # 'low', 'normal', 'high', 'urgent'
+    status = sql.Column(sql.Enum(OrderStatusEnum), nullable=False, default=OrderStatusEnum.PENDING, index=True)
+    order_type = sql.Column(sql.String(50), nullable=False, default='print_service', index=True)  # 'print_service', 'ready_made', 'mixed'
+    priority = sql.Column(sql.String(20), nullable=False, default='normal', index=True)  # 'low', 'normal', 'high', 'urgent'
     
     # Financial information
     subtotal = sql.Column(sql.Numeric(10, 4), nullable=False, default=0.00)  # Subtotal before taxes and fees
@@ -40,7 +40,7 @@ class Order(Base):
     currency = sql.Column(sql.String(3), nullable=False, default='USD')  # Currency code
     
     # Payment information
-    payment_status = sql.Column(sql.String(20), nullable=False, default='pending')  # 'pending', 'paid', 'partial', 'refunded'
+    payment_status = sql.Column(sql.String(20), nullable=False, default='pending', index=True)  # 'pending', 'paid', 'partial', 'refunded'
     payment_method = sql.Column(sql.String(50), nullable=True)  # Payment method used
     payment_reference = sql.Column(sql.String(100), nullable=True)  # Payment gateway reference
     
@@ -56,7 +56,7 @@ class Order(Base):
     special_instructions = sql.Column(sql.Text, nullable=True)  # Special printing instructions
     
     # Supplier information (for materials/supplies)
-    supplier_id = sql.Column(UUIDType(binary=False), ForeignKey('supplier.id', ondelete='SET NULL', name='fk_order_supplier_id'), nullable=True)
+    supplier_id = sql.Column(UUIDType(binary=False), ForeignKey('supplier.id', ondelete='SET NULL', name='fk_order_supplier_id'), nullable=True, index=True)
     
     # Relationships
     customer = relationship("Customer")
@@ -110,8 +110,8 @@ class OrderItem(Base):
     __tablename__ = 'order_items'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    order_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('order.id', ondelete='CASCADE'), nullable=False)
-    product_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
+    order_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('order.id', ondelete='CASCADE'), nullable=False, index=True)
+    product_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('product.id', ondelete='CASCADE'), nullable=False, index=True)
     
     # Item details
     quantity = sql.Column(sql.Integer, nullable=False, default=1)
@@ -119,7 +119,7 @@ class OrderItem(Base):
     total_price = sql.Column(sql.Numeric(10, 4), nullable=False)  # Total price for this item
     
     # 3D Printing specific
-    material_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_materials.id'), nullable=True)
+    material_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_materials.id'), nullable=True, index=True)
     settings_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('print_settings.id'), nullable=True)
     packaging_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('product_packaging.id'), nullable=True)
     

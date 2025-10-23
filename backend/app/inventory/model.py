@@ -17,8 +17,8 @@ class Inventory(Base):
     product_id = sql.Column(UUIDType(binary=False), ForeignKey('product.id',ondelete='SET NULL', name='fk_inventory_product_id'), nullable=True, index=True)
     branch_id = sql.Column(UUIDType(binary=False), ForeignKey('branch.id',ondelete='SET NULL', name='fk_inventory_branch_id'), nullable=True, index=True)
     store_id = sql.Column(UUIDType(binary=False), ForeignKey('store.id',ondelete='SET NULL', name='fk_inventory_store_id'), nullable=True, index=True)
-    quantity = sql.Column(sql.Integer, nullable=False, default=0)
-    quantity_alert = sql.Column(sql.Integer, nullable=True)
+    quantity = sql.Column(sql.Integer, nullable=False, default=0, index=True)
+    quantity_alert = sql.Column(sql.Integer, nullable=True, index=True)
     
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc),index=True)
     modified_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc))

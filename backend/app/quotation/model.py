@@ -23,7 +23,7 @@ class Quotation(Base):
     user_id = sql.Column(UUIDType(binary=False), ForeignKey('users.id', ondelete='SET NULL', name='fk_quotation_user_id'), nullable=True, index=True)
     # Note: Column name kept as 'qoute_status' to match existing database schema
     # Property accessor provides correct 'quote_status' name
-    quote_status = sql.Column('qoute_status', sql.Enum(QuoteStatusEnum), default=QuoteStatusEnum.PENDING)
+    quote_status = sql.Column('qoute_status', sql.Enum(QuoteStatusEnum), default=QuoteStatusEnum.PENDING, index=True)
     date = sql.Column(sql.DATE)
     summary = sql.Column(sql.JSON)
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc), index=True)

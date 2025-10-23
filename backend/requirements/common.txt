@@ -43,3 +43,5 @@ bleach==6.2.0
 structlog==25.1.0
 marshmallow==4.0.0
 sentry-sdk[flask]==2.35.1
+
+psutil==7.1.1

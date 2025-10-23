@@ -29,10 +29,10 @@ class Supplier(Base):
     
     # Address information
     address = sql.Column(sql.Text, nullable=True)
-    city = sql.Column(sql.String(100), nullable=True)
+    city = sql.Column(sql.String(100), nullable=True, index=True)
     state = sql.Column(sql.String(100), nullable=True)
     postal_code = sql.Column(sql.String(20), nullable=True)
-    country = sql.Column(sql.String(100), nullable=True)
+    country = sql.Column(sql.String(100), nullable=True, index=True)
     
     # Business information
     business_type = sql.Column(sql.String(50), nullable=False, default='material_supplier')  # 'material_supplier', 'service_provider', 'equipment_supplier', 'packaging_supplier'
@@ -41,10 +41,10 @@ class Supplier(Base):
     vat_number = sql.Column(sql.String(100), nullable=True)  # VAT number
     
     # Supplier status and rating
-    status = sql.Column(sql.String(20), nullable=False, default='active')  # 'active', 'inactive', 'suspended', 'blacklisted'
+    status = sql.Column(sql.String(20), nullable=False, default='active', index=True)  # 'active', 'inactive', 'suspended', 'blacklisted'
     rating = sql.Column(sql.Numeric(3, 2), nullable=True, default=0)  # Supplier rating (0-5)
     is_preferred = sql.Column(sql.Boolean, default=False)  # Preferred supplier status
-    is_verified = sql.Column(sql.Boolean, default=False)  # Verification status
+    is_verified = sql.Column(sql.Boolean, default=False, index=True)  # Verification status
     
     # Payment and terms
     payment_terms = sql.Column(sql.String(50), nullable=True)  # Payment terms (e.g., 'Net 30', 'COD')

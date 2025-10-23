@@ -19,19 +19,19 @@ class Category(Translatable, Base):
     locale = Config.DEFAULT_LOCALE
  
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    parent_id = sql.Column(UUIDType(binary=False), ForeignKey('category.id', ondelete='SET NULL', name='fk_category_parent_id'), nullable=True)
+    parent_id = sql.Column(UUIDType(binary=False), ForeignKey('category.id', ondelete='SET NULL', name='fk_category_parent_id'), nullable=True, index=True)
     
     # Category identification
     code = sql.Column(sql.String(50), nullable=True, unique=True, index=True)  # Category code
     slug = sql.Column(sql.String(100), nullable=True, unique=True, index=True)  # URL-friendly slug
     
     # Category status and visibility
-    is_active = sql.Column(sql.Boolean(), nullable=False, default=True)
-    is_featured = sql.Column(sql.Boolean(), nullable=False, default=False)
+    is_active = sql.Column(sql.Boolean(), nullable=False, default=True, index=True)
+    is_featured = sql.Column(sql.Boolean(), nullable=False, default=True, index=True)
     sort_order = sql.Column(sql.Integer, nullable=False, default=0)  # Display order
     
     # Category type (for 3D printing services)
-    category_type = sql.Column(sql.String(50), nullable=False, default='product')  # 'product', 'service', 'material', 'ready_made'
+    category_type = sql.Column(sql.String(50), nullable=False, default='product', index=True)  # 'product', 'service', 'material', 'ready_made'
     
     # Visual elements
     css_class = sql.Column(sql.String(128), nullable=True)

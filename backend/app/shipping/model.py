@@ -17,12 +17,12 @@ class Shipping(Base):
     __tablename__ = 'shipping'
 
     id = Column(UUIDType(binary=False), primary_key=True, default=lambda: str(uuid.uuid4()))
-    order_id = Column(String(36), ForeignKey('order.id'), nullable=False, unique=True)
+    order_id = Column(String(36), ForeignKey('order.id'), nullable=False, unique=True, index=True)
     carrier = Column(String(100))
     tracking_number = Column(String(100), index=True)
     shipping_cost = Column(Numeric(10, 3), nullable=True)
     shipping_date = Column(DateTime, default=datetime.now(timezone.utc), nullable=False, index=True)
-    status = Column(sql.Enum(ShippingStatusEnum), default=ShippingStatusEnum.PENDING)
+    status = Column(sql.Enum(ShippingStatusEnum), default=ShippingStatusEnum.PENDING, index=True)
     create_date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     modified_date = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

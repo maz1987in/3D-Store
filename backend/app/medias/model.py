@@ -9,9 +9,9 @@ class Media(Base):
     __tablename__ = 'media'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True)
-    model_type = sql.Column(sql.String(length=255))
-    model_id = sql.Column(sql.String(length=255))
-    collection_name = sql.Column(sql.String(length=255))
+    model_type = sql.Column(sql.String(length=255), index=True)
+    model_id = sql.Column(sql.String(length=255), index=True)
+    collection_name = sql.Column(sql.String(length=255), index=True)
     name = sql.Column(sql.String(length=255))
     mime_type = sql.Column(sql.String(length=255))
     disk = sql.Column(sql.String(length=255))

@@ -15,9 +15,9 @@ class FiscalYear(Base):
 
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
     company_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('company.id', ondelete='SET NULL', name='fk_fiscal_year_company_id'), nullable=True, index=True)
-    start_date = sql.Column(sql.Date, nullable=False)
-    end_date = sql.Column(sql.Date, nullable=False)
-    status = sql.Column(sql.Enum(FiscalYearStatusEnum), nullable=False, default=FiscalYearStatusEnum.OPEN)
+    start_date = sql.Column(sql.Date, nullable=False, index=True)
+    end_date = sql.Column(sql.Date, nullable=False, index=True)
+    status = sql.Column(sql.Enum(FiscalYearStatusEnum), nullable=False, default=FiscalYearStatusEnum.OPEN, index=True)
     locked = sql.Column(sql.Boolean, default=False)
     notes = sql.Column(sql.Text)
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc),index=True)
@@ -48,9 +48,9 @@ class FiscalPeriod(Base):
     company_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('company.id', ondelete='CASCADE', name='fk_fiscal_period_company_id'), nullable=False, index=True)
     financial_year_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('fiscal_year.id', ondelete='CASCADE', name='fk_fiscal_period_financial_year_id'), nullable=False, index=True)
     period_name = sql.Column(sql.String(255), nullable=False)
-    start_date = sql.Column(sql.Date, nullable=False)
-    end_date = sql.Column(sql.Date, nullable=False)
-    status = sql.Column(sql.Enum(FiscalYearStatusEnum), nullable=False, default=FiscalYearStatusEnum.OPEN)
+    start_date = sql.Column(sql.Date, nullable=False, index=True)
+    end_date = sql.Column(sql.Date, nullable=False, index=True)
+    status = sql.Column(sql.Enum(FiscalYearStatusEnum), nullable=False, default=FiscalYearStatusEnum.OPEN, index=True)
 
     # Relationships
     company = relationship("Company")

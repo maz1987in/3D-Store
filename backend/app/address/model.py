@@ -8,13 +8,13 @@ class ShippingAddress(Base):
     __tablename__ = 'shipping_addresses'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True)
-    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
     address_line1 = sql.Column(sql.String(255), nullable=False)
     address_line2 = sql.Column(sql.String(255), nullable=True)
-    city = sql.Column(sql.String(100), nullable=False)
+    city = sql.Column(sql.String(100), nullable=False, index=True)
     state = sql.Column(sql.String(100), nullable=True)
     postal_code = sql.Column(sql.String(20), nullable=True)
-    country = sql.Column(sql.String(100), nullable=False)
+    country = sql.Column(sql.String(100), nullable=False, index=True)
     phone = sql.Column(sql.String(30), nullable=True)
     label = sql.Column(sql.String(50), nullable=True)  # e.g. "Home", "Work"
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc), index=True)

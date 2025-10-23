@@ -27,13 +27,13 @@ class Product(Translatable, Base):
     sku = sql.Column(sql.String(100), nullable=True, unique=True)  # Stock Keeping Unit
     
     # Product type and category
-    product_type = sql.Column(sql.String(50), nullable=False, default='service')  # 'service', 'ready_made', 'material'
+    product_type = sql.Column(sql.String(50), nullable=False, default='service', index=True)  # 'service', 'ready_made', 'material'
     category_id = sql.Column(UUIDType(binary=False), ForeignKey('category.id',ondelete='SET NULL', name='fk_product_category_id'), nullable=True, index=True)
-    subcategory_id = sql.Column(UUIDType(binary=False), ForeignKey('category.id',ondelete='SET NULL', name='fk_product_subcategory_id'), nullable=True)
+    subcategory_id = sql.Column(UUIDType(binary=False), ForeignKey('category.id',ondelete='SET NULL', name='fk_product_subcategory_id'), nullable=True, index=True)
     
     # Pricing
-    base_price = sql.Column(sql.Numeric(10, 4), nullable=False, default=0)  # Base price in base currency
-    currency = sql.Column(sql.String(3), nullable=False, default='USD')
+    base_price = sql.Column(sql.Numeric(10, 4), nullable=False, default=0, index=True)  # Base price in base currency
+    currency = sql.Column(sql.String(3), nullable=False, default='USD', index=True)
     is_dynamic_pricing = sql.Column(sql.Boolean, default=False)  # For 3D printing services with variable pricing
     
     # 3D Printing specific fields
@@ -58,8 +58,8 @@ class Product(Translatable, Base):
     attachments = sql.Column(sql.JSON, nullable=True)  # Additional attachments
     
     # Product status and visibility
-    is_active = sql.Column(sql.Boolean, default=True)
-    is_featured = sql.Column(sql.Boolean, default=False)
+    is_active = sql.Column(sql.Boolean, default=True, index=True)
+    is_featured = sql.Column(sql.Boolean, default=False, index=True)
     is_digital_download = sql.Column(sql.Boolean, default=False)  # For downloadable 3D models
     
     # Supplier and sourcing

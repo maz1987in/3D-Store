@@ -22,7 +22,7 @@ class Customer(Translatable, Base):
     
     # Customer identification
     customer_code = sql.Column(sql.String(50), nullable=True, unique=True, index=True)  # Internal customer code
-    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=True)  # Link to user account
+    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)  # Link to user account
     
     # Contact information
     email = sql.Column(sql.String(255), nullable=True, unique=True, index=True)
@@ -31,15 +31,15 @@ class Customer(Translatable, Base):
     
     # Address information
     address = sql.Column(sql.Text, nullable=True)
-    city = sql.Column(sql.String(100), nullable=True)
+    city = sql.Column(sql.String(100), nullable=True, index=True)
     state = sql.Column(sql.String(100), nullable=True)
     postal_code = sql.Column(sql.String(20), nullable=True)
-    country = sql.Column(sql.String(100), nullable=True)
+    country = sql.Column(sql.String(100), nullable=True, index=True)
     location = sql.Column(sql.String(255), nullable=True)  # Legacy field for compatibility
     
     # Customer type and status
-    customer_type = sql.Column(sql.String(50), nullable=False, default='individual')  # 'individual', 'business', 'wholesale'
-    status = sql.Column(sql.String(20), nullable=False, default='active')  # 'active', 'inactive', 'suspended'
+    customer_type = sql.Column(sql.String(50), nullable=False, default='individual', index=True)  # 'individual', 'business', 'wholesale'
+    status = sql.Column(sql.String(20), nullable=False, default='active', index=True)  # 'active', 'inactive', 'suspended'
     is_verified = sql.Column(sql.Boolean, default=False)  # Email/phone verification status
     
     # Business information (for business customers)

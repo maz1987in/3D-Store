@@ -7,9 +7,9 @@ class Rating(Base):
     __tablename__ = 'ratings'
 
     id = Column(UUIDType(binary=False), primary_key=True)
-    product_id = Column(UUIDType(binary=False), ForeignKey('product.id', ondelete='CASCADE'), nullable=False)
-    user_id = Column(UUIDType(binary=False), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)  # <-- Add ForeignKey here
-    score = Column(Float, nullable=False)
+    product_id = Column(UUIDType(binary=False), ForeignKey('product.id', ondelete='CASCADE'), nullable=False, index=True)
+    user_id = Column(UUIDType(binary=False), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)  # <-- Add ForeignKey here
+    score = Column(Float, nullable=False, index=True)
     comment = Column(Text, nullable=True)
 
     product = relationship("Product", back_populates="ratings")

@@ -87,16 +87,16 @@ class PaymentTransaction(Base):
  
     id = sql.Column(UUIDType(binary=False), primary_key=True)
     active = sql.Column('is_active', sql.Boolean(), nullable=False, server_default='1')
-    requester = sql.Column(UUIDType(binary=False))
+    requester = sql.Column(UUIDType(binary=False), index=True)
     reference_id = sql.Column(sql.String(length=255), nullable=False, index=True, unique=True)
-    payment_status = sql.Column('payment_status', sql.Enum(PaymentStatusEnum))
+    payment_status = sql.Column('payment_status', sql.Enum(PaymentStatusEnum), index=True)
     gateway_transaction_id = sql.Column(sql.String(length=255), nullable=True, index=True)
     gateway_status = sql.Column(sql.String(length=255))
-    amount = sql.Column(sql.Float)
+    amount = sql.Column(sql.Float, index=True)
     vat = sql.Column(sql.Float) 
 
-    model_type = sql.Column(sql.String(length=255))
-    model_id = sql.Column(sql.String(length=255))
+    model_type = sql.Column(sql.String(length=255), index=True)
+    model_id = sql.Column(sql.String(length=255), index=True)
     model_action = sql.Column(sql.String(length=255))
     response_code = sql.Column(sql.String(length=255))
     response_decision = sql.Column(sql.String(length=255))
@@ -116,7 +116,7 @@ class PaymentTransaction(Base):
 
     config_id = sql.Column(UUIDType(binary=False))
 
-    is_online = sql.Column(sql.Boolean(), default=False)
+    is_online = sql.Column(sql.Boolean(), default=False, index=True)
     
     payment_gateway = sql.Column(sql.String(length=255), sql.ForeignKey('payment_gateway.name'))
     payment_type = sql.Column(sql.String(length=255), sql.ForeignKey('payment_type.name'))

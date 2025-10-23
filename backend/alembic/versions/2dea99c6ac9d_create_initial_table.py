@@ -8,8 +8,8 @@ Create Date: 2025-09-28 20:47:34.432333
 from alembic import op
 import sqlalchemy_utils
 import sqlalchemy as sa
-import sqlalchemy_utils
 import uuid
+from depot.fields.sqlalchemy import UploadedFileField
 
 # revision identifiers, used by Alembic.
 revision = '2dea99c6ac9d'
@@ -135,7 +135,7 @@ def upgrade() -> None:
     sa.Column('disk', sa.String(length=255), nullable=True),
     sa.Column('size', sa.String(length=255), nullable=True),
     sa.Column('order_column', sa.Integer(), nullable=True),
-    sa.Column('file', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
+    sa.Column('file', UploadedFileField(), nullable=True),
     sa.Column('custom_properties', sa.JSON(), nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('last_modified', sa.DateTime(), nullable=True),
@@ -224,6 +224,9 @@ def upgrade() -> None:
     sa.Column('summary', sa.JSON(), nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('modified_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['customer_id'], ['customer.id'], name='fk_quotation_customer_id', ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['branch_id'], ['branch.id'], name='fk_quotation_branch_id', ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_quotation_user_id', ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('quotations', schema=None) as batch_op:
@@ -309,7 +312,7 @@ def upgrade() -> None:
     sa.Column('primary_contact_email', sa.String(length=255), nullable=True),
     sa.Column('details', sa.UnicodeText(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
-    sa.Column('logo', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
+    sa.Column('logo', UploadedFileField(), nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('modified_date', sa.DateTime(), nullable=True),
     sa.Column('last_order_date', sa.DateTime(), nullable=True),
@@ -359,7 +362,7 @@ def upgrade() -> None:
     sa.Column('user_type', sa.Enum('ADMIN', 'USER', 'OWNER', 'GOVERNMENT', 'CORPORATE', name='usertypeenum'), server_default='USER', nullable=True),
     sa.Column('language', sa.Enum('ENGLISH', 'ARABIC', name='languageenum'), server_default='ARABIC', nullable=True),
     sa.Column('user_id', sa.String(length=255), nullable=True),
-    sa.Column('user_id_image', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
+    sa.Column('user_id_image', UploadedFileField(), nullable=True),
     sa.Column('user_details', sa.JSON(), nullable=True),
     sa.Column('name', sa.String(length=255), nullable=True),
     sa.Column('mobile_confirmed_at', sa.DateTime(), nullable=True),
@@ -405,9 +408,9 @@ def upgrade() -> None:
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('category_type', sa.String(length=50), nullable=False),
     sa.Column('css_class', sa.String(length=128), nullable=True),
-    sa.Column('icon', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
-    sa.Column('image', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
-    sa.Column('banner_image', depot.fields.sqlalchemy.UploadedFileField(), nullable=True),
+    sa.Column('icon', UploadedFileField(), nullable=True),
+    sa.Column('image', UploadedFileField(), nullable=True),
+    sa.Column('banner_image', UploadedFileField(), nullable=True),
     sa.Column('meta_title', sa.String(length=255), nullable=True),
     sa.Column('meta_description', sa.Text(), nullable=True),
     sa.Column('meta_keywords', sa.Text(), nullable=True),
@@ -525,7 +528,7 @@ def upgrade() -> None:
     sa.Column('notes', sa.Text(), nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('modified_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
+    sa.ForeignKeyConstraint(['company_id'], ['company.id'], name='fk_fiscal_year_company_id', ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('fiscal_year', schema=None) as batch_op:
@@ -736,7 +739,7 @@ def upgrade() -> None:
     sa.Column('order', sa.Integer(), nullable=True),
     sa.Column('url', sa.String(length=255), nullable=True),
     sa.Column('slider_type', sa.String(length=255), nullable=False),
-    sa.Column('image', depot.fields.sqlalchemy.UploadedFileField(), nullable=False),
+    sa.Column('image', UploadedFileField(), nullable=False),
     sa.Column('platform', sa.Enum('MOBILE', 'ANDROID', 'IOS', 'WEB', 'ALL', name='platformenum'), server_default='ALL', nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('modified_date', sa.DateTime(), nullable=True),
@@ -829,8 +832,8 @@ def upgrade() -> None:
     sa.Column('start_date', sa.Date(), nullable=False),
     sa.Column('end_date', sa.Date(), nullable=False),
     sa.Column('status', sa.Enum('OPEN', 'CLOSED', name='fiscalyearstatusenum'), nullable=False),
-    sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
-    sa.ForeignKeyConstraint(['financial_year_id'], ['fiscal_year.id'], ),
+    sa.ForeignKeyConstraint(['company_id'], ['company.id'], name='fk_fiscal_period_company_id', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['financial_year_id'], ['fiscal_year.id'], name='fk_fiscal_period_financial_year_id', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('order',
@@ -961,7 +964,7 @@ def upgrade() -> None:
     sa.Column('seller_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), default=uuid.uuid4, nullable=False),
     sa.Column('document_type', sa.String(length=50), nullable=False),
     sa.Column('document_name', sa.String(length=255), nullable=False),
-    sa.Column('document_file', depot.fields.sqlalchemy.UploadedFileField(), nullable=False),
+    sa.Column('document_file', UploadedFileField(), nullable=False),
     sa.Column('file_size', sa.BigInteger(), nullable=False),
     sa.Column('file_type', sa.String(length=50), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
@@ -1079,7 +1082,7 @@ def upgrade() -> None:
     sa.Column('id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), default=uuid.uuid4, nullable=False),
     sa.Column('order_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), default=uuid.uuid4, nullable=False),
     sa.Column('user_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), default=uuid.uuid4, nullable=False),
-    sa.Column('model_file', depot.fields.sqlalchemy.UploadedFileField(), nullable=False),
+    sa.Column('model_file', UploadedFileField(), nullable=False),
     sa.Column('model_file_name', sa.String(length=255), nullable=False),
     sa.Column('model_file_size', sa.BigInteger(), nullable=False),
     sa.Column('model_file_type', sa.String(length=50), nullable=False),
@@ -1236,6 +1239,8 @@ def upgrade() -> None:
     sa.Column('financial_year_id', sqlalchemy_utils.types.uuid.UUIDType(binary=False), default=uuid.uuid4, nullable=True),
     sa.Column('create_date', sa.DateTime(), nullable=True),
     sa.Column('modified_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['from_location_id'], ['branch.id'], name='fk_transaction_from_location_id', ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['to_location_id'], ['branch.id'], name='fk_transaction_to_location_id', ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['financial_year_id'], ['fiscal_year.id'], name='fk_transaction_fiscal_year_id', ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['product_id'], ['product.id'], name='fk_transaction_product_id', ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')

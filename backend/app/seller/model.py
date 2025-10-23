@@ -36,7 +36,7 @@ class Seller(Base):
     __tablename__ = 'sellers'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4)
-    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, unique=True)
+    user_id = sql.Column(UUIDType(binary=False), sql.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, unique=True, index=True)
     
     # Business information
     business_name = sql.Column(sql.String(255), nullable=False)
@@ -54,7 +54,7 @@ class Seller(Base):
     bank_swift_code = sql.Column(sql.String(20), nullable=True)
     
     # Status and verification
-    status = sql.Column(sql.Enum(SellerStatusEnum), default=SellerStatusEnum.PENDING)
+    status = sql.Column(sql.Enum(SellerStatusEnum), default=SellerStatusEnum.PENDING, index=True)
     verification_status = sql.Column(sql.String(20), default='pending')  # pending, verified, rejected
     verification_notes = sql.Column(sql.Text, nullable=True)
     verified_at = sql.Column(sql.DateTime, nullable=True)
@@ -84,7 +84,7 @@ class Seller(Base):
     social_media = sql.Column(sql.JSON, nullable=True)  # Store social media links
     
     # Settings
-    is_active = sql.Column(sql.Boolean, default=True)
+    is_active = sql.Column(sql.Boolean, default=True, index=True)
     auto_approve_orders = sql.Column(sql.Boolean, default=False)
     notification_preferences = sql.Column(sql.JSON, nullable=True)
     
