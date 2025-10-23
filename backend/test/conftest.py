@@ -26,6 +26,12 @@ os.environ['DB_TYPE'] = 'sqlite'
 os.environ['CACHE_ENABLED'] = 'False'
 os.environ['SCHEDULER_ENABLED'] = 'False'
 
+# Initialize translation manager BEFORE importing models
+from sqlalchemy_i18n import make_translatable
+make_translatable(options={
+    'locales': ['en', 'ar'],
+})
+
 from app import create_app
 from database import Base
 from app.users.model import User
@@ -117,7 +123,7 @@ def sample_user(db_session):
         email='test@example.com',
         user_type=UserTypeEnum.USER,
         language=LanguageEnum.ENGLISH,
-        password=generate_password_hash('testpassword'),
+        password='Test@1234',  # Plain text password (model will hash it)
         active=True
     )
     db_session.add(user)
@@ -134,7 +140,7 @@ def sample_admin(db_session):
         email='admin@example.com',
         user_type=UserTypeEnum.ADMIN,
         language=LanguageEnum.ENGLISH,
-        password=generate_password_hash('adminpassword'),
+        password='Admin@1234',  # Plain text password (model will hash it)
         active=True
     )
     db_session.add(admin)
@@ -221,6 +227,7 @@ def sample_category(db_session):
 @pytest.fixture
 def sample_product(db_session, sample_category):
     """Create a sample product for testing."""
+    from app.common.enum import ProductUnitEnum
     product = Product(
         code='TEST_PROD',
         sku='TEST-SKU-001',
@@ -228,7 +235,8 @@ def sample_product(db_session, sample_category):
         category_id=sample_category.id,
         base_price=100.00,
         currency='USD',
-        is_dynamic_pricing=False
+        is_dynamic_pricing=False,
+        unit=ProductUnitEnum.PIECE
     )
     db_session.add(product)
     db_session.commit()
@@ -365,6 +373,95 @@ def sample_permission(db_session):
     db_session.add(permission)
     db_session.commit()
     return permission
+
+
+@pytest.fixture
+def sample_supplier(db_session):
+    """Create a sample supplier for testing."""
+    from app.supplier.model import Supplier
+    import uuid
+    supplier = Supplier(
+        id=uuid.uuid4(),
+        code='SUP-001',
+        contact_person='John Doe',
+        phone='+96812345678',
+        email='supplier@test.com',
+        active=True
+    )
+    db_session.add(supplier)
+    db_session.commit()
+    return supplier
+
+
+@pytest.fixture
+def sample_quotation(db_session, sample_user, sample_product):
+    """Create a sample quotation for testing."""
+    from app.quotation.model import Quotation
+    import uuid
+    from datetime import datetime, timezone
+    quotation = Quotation(
+        id=uuid.uuid4(),
+        customer_id=sample_user.id,
+        product_id=sample_product.id,
+        quantity=5,
+        base_price=100.00,
+        total_price=125.00,
+        status='draft',
+        valid_until=datetime.now(timezone.utc),
+        create_date=datetime.now(timezone.utc),
+        modified_date=datetime.now(timezone.utc)
+    )
+    db_session.add(quotation)
+    db_session.commit()
+    return quotation
+
+
+@pytest.fixture
+def sample_invoice(db_session, sample_order, sample_customer, sample_branch):
+    """Create a sample invoice for testing."""
+    from app.invoices.model import Invoice
+    import uuid
+    from datetime import datetime, timezone, date
+    invoice = Invoice(
+        id=uuid.uuid4(),
+        number='INV-001',
+        total_amount=100.00,
+        tax=15.00,
+        discount=0.00,
+        delivery_amount=10.00,
+        grand_total=125.00,
+        customer_id=sample_customer.id,
+        branch_id=sample_branch.id,
+        user_id=sample_order.user_id,
+        payment_status='pending',
+        date=date.today(),
+        create_date=datetime.now(timezone.utc),
+        modified_date=datetime.now(timezone.utc)
+    )
+    db_session.add(invoice)
+    db_session.commit()
+    return invoice
+
+
+@pytest.fixture
+def sample_shipping(db_session, sample_order):
+    """Create a sample shipping record for testing."""
+    from app.shipping.model import Shipping
+    import uuid
+    from datetime import datetime, timezone
+    shipping = Shipping(
+        id=uuid.uuid4(),
+        order_id=sample_order.id,
+        carrier='DHL',
+        tracking_number='TRACK123',
+        cost=10.00,
+        status='pending',
+        create_date=datetime.now(timezone.utc),
+        modified_date=datetime.now(timezone.utc)
+    )
+    db_session.add(shipping)
+    db_session.commit()
+    return shipping
 
 
 @pytest.fixture

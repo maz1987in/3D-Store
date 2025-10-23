@@ -89,7 +89,17 @@ class OMPayService:
                 'signature_verified': verified,
                 'gateway_payload': json.dumps(payload),
             }
-        model, id = PaymentTransactionsService().update_payment_ompay(data.get('ref'), update)
+        else:
+            # Handle unknown/invalid status
+            update = {
+                'payment_status': PaymentStatusEnum.pending.value,
+                'gateway_status': status or 'unknown',
+                'payment_id': payment_id,
+                'signature_verified': verified,
+                'gateway_payload': json.dumps(payload),
+            }
+        
+        model, id = PaymentTransactionsService().update_payment_ompay(payload.get('ref'), update)
 
         # TODO: lookup your transaction/order by order_id, then update fields:
         # - payment_id
@@ -106,7 +116,15 @@ class OMPayService:
         #     tx.signature_verified = verified
         #     tx.gateway_payload = payload
         #     session.commit()
-        return True
+        
+        return {
+            'message': 'Payment receipt processed',
+            'order_id': order_id,
+            'payment_id': payment_id,
+            'status': status,
+            'model_type': model,
+            'model_id': str(id)
+        }, 200
 
     def payment_status(self, session_id):
         response = requests.get(f"{OMPayConfig.OMPAY_BASE_URL}/nac/api/v1/pg/orders/check-status?orderId={session_id}", headers=OMPayConfig.OMPAY_HEADERS)

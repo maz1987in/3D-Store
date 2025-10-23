@@ -121,9 +121,11 @@ class TestOMPayService(BaseServiceTestCase):
         """Test handling successful payment webhook."""
         # Mock payment transaction update
         mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_ompay.return_value = ('Order', uuid.uuid4())
         mock_payment_service.return_value = mock_payment_service_instance
         
         webhook_payload = {
+            'ref': 'REF-123',
             'orderId': 'OM-SUCCESS-123',
             'paymentId': 'PAY-987654',
             'status': 'SUCCESS',
@@ -141,9 +143,11 @@ class TestOMPayService(BaseServiceTestCase):
     def test_receipt_failed_status(self, mock_payment_service, db_session):
         """Test handling failed payment webhook."""
         mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_ompay.return_value = ('Order', uuid.uuid4())
         mock_payment_service.return_value = mock_payment_service_instance
         
         webhook_payload = {
+            'ref': 'REF-456',
             'orderId': 'OM-FAIL-123',
             'paymentId': 'PAY-111111',
             'status': 'FAILED',
@@ -160,7 +164,12 @@ class TestOMPayService(BaseServiceTestCase):
     @patch('app.ompay.service.PaymentTransactionsService')
     def test_receipt_unverified_signature(self, mock_payment_service, db_session):
         """Test rejecting webhook with invalid signature."""
+        mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_ompay.return_value = ('Order', uuid.uuid4())
+        mock_payment_service.return_value = mock_payment_service_instance
+        
         webhook_payload = {
+            'ref': 'REF-789',
             'orderId': 'OM-INVALID-123',
             'paymentId': 'PAY-222222',
             'status': 'SUCCESS',
@@ -179,9 +188,11 @@ class TestOMPayService(BaseServiceTestCase):
     def test_receipt_duplicate_webhook(self, mock_payment_service, db_session):
         """Test handling duplicate webhooks."""
         mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_ompay.return_value = ('Order', uuid.uuid4())
         mock_payment_service.return_value = mock_payment_service_instance
         
         webhook_payload = {
+            'ref': 'REF-DUP-123',
             'orderId': 'OM-DUP-123',
             'paymentId': 'PAY-DUPLICATE',
             'status': 'SUCCESS',
@@ -283,7 +294,12 @@ class TestOMPayService(BaseServiceTestCase):
     @patch('app.ompay.service.PaymentTransactionsService')
     def test_receipt_missing_fields(self, mock_payment_service, db_session):
         """Test handling webhook with missing fields."""
+        mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_ompay.return_value = ('Order', uuid.uuid4())
+        mock_payment_service.return_value = mock_payment_service_instance
+        
         incomplete_payload = {
+            'ref': 'REF-INCOMPLETE',
             'orderId': 'OM-INCOMPLETE',
             # Missing paymentId, status, etc.
         }

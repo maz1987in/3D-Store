@@ -59,12 +59,14 @@ class CityService:
                 modified_date=datetime.now(timezone.utc)
             )
             
+            session.add(city)
+            session.flush()  # Flush to initialize translations before accessing them
+            
             for local in Config.AVAILABLE_LOCALES.keys():
                 if isinstance(data['name'], str):
                     city.translations[local].name = json.loads(data['name'])[local]
                 else:
                     city.translations[local].name = data['name'][local]
-            session.add(city)
             session.commit()
             return 'City Created', 201
     
@@ -90,12 +92,13 @@ class CityService:
             city.is_active = data.get('is_active', city.is_active)
             city.modified_date = datetime.now(timezone.utc)
             
-            for local in Config.AVAILABLE_LOCALES.keys():
-                if isinstance(data['name'], str):
-                    city.translations[local].name = json.loads(data['name'])[local]
-                else:
-                    city.translations[local].name = data['name'][local]
-                    
+            # Update translations if provided
+            if 'name' in data:
+                for local in Config.AVAILABLE_LOCALES.keys():
+                    if isinstance(data['name'], str):
+                        city.translations[local].name = json.loads(data['name'])[local]
+                    else:
+                        city.translations[local].name = data['name'][local]
             
             session.commit()
             return 'City Updated', 200

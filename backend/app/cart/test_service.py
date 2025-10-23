@@ -21,8 +21,45 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from test.base_test import BaseServiceTestCase
 from test.test_helpers import assert_decimal_equal, create_mock_filter
 from app.cart.service import CartService
-from app.cart.model import Cart
+from app.cart.model import Cart, Item
 from app.common.error_handling import ResourceNotFoundError
+
+
+# ========== Local Fixtures ==========
+
+@pytest.fixture
+def sample_cart(db_session):
+    """Create a sample cart for testing."""
+    cart = Cart(
+        id=uuid.uuid4(),
+        total=0.00,
+    )
+    db_session.add(cart)
+    db_session.commit()
+    return cart
+
+
+@pytest.fixture
+def sample_cart_item(db_session, sample_cart, sample_product):
+    """Create a sample cart item for testing."""
+    item = Item(
+        id=uuid.uuid4(),
+        cart_id=sample_cart.id,
+        price=100.00,
+        quantity=2,
+        service_id=sample_product.id,
+        service_type='product'
+    )
+    db_session.add(item)
+    db_session.flush()
+    
+    # Set translations
+    from config import Config
+    for locale in Config.AVAILABLE_LOCALES.keys():
+        item.translations[locale].title = f'Test Item {locale}'
+    
+    db_session.commit()
+    return item
 
 
 class TestCartService(BaseServiceTestCase):
@@ -35,13 +72,10 @@ class TestCartService(BaseServiceTestCase):
     
     # ========== CRUD Operations Tests ==========
     
-    def test_create_cart_success(self, db_session, sample_user, sample_product):
-        """Test creating a cart item successfully."""
+    def test_create_cart_success(self, db_session):
+        """Test creating a cart successfully."""
         cart_data = {
-            'user_id': sample_user.id,
-            'item_id': sample_product.id,
-            'quantity': 2,
-            'unit_price': 100.00
+            'total': 100.00
         }
         
         result, status = self.service.create_cart(cart_data)
@@ -50,11 +84,8 @@ class TestCartService(BaseServiceTestCase):
         assert 'Created' in result
         
         # Verify cart was created
-        cart = db_session.query(Cart).filter(
-            Cart.user_id == sample_user.id
-        ).first()
-        assert cart is not None
-        assert cart.quantity == 2
+        carts = db_session.query(Cart).all()
+        assert len(carts) > 0
     
     def test_get_user_cart(self, db_session, sample_user, sample_product):
         """Test getting all cart items for a user."""

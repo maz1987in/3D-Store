@@ -338,6 +338,10 @@ class TestThawaniService(BaseServiceTestCase):
     @patch('app.thawani.service.PaymentTransactionsService')
     def test_payment_callback_missing_reference(self, mock_payment_service, db_session):
         """Test handling callback with missing reference."""
+        mock_payment_service_instance = Mock()
+        mock_payment_service_instance.update_payment_thawani.return_value = ('Order', uuid.uuid4())
+        mock_payment_service.return_value = mock_payment_service_instance
+        
         callback_data = {}  # Missing 'ref'
         
         # Should handle missing reference gracefully
