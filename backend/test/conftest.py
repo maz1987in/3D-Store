@@ -17,6 +17,9 @@ from werkzeug.security import generate_password_hash
 # Add the backend directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+# Mock psutil before any imports (avoid ModuleNotFoundError in performance middleware)
+sys.modules['psutil'] = __import__('unittest.mock').mock.MagicMock()
+
 # Set required environment variables BEFORE importing app modules
 # This prevents ValueError when config.py is loaded
 os.environ['TESTING'] = 'True'
@@ -25,6 +28,7 @@ os.environ['SECURITY_PASSWORD_SALT'] = 'test_salt_for_testing_12345678'
 os.environ['DB_TYPE'] = 'sqlite'
 os.environ['CACHE_ENABLED'] = 'False'
 os.environ['SCHEDULER_ENABLED'] = 'False'
+os.environ['PERFORMANCE_MONITORING'] = 'False'  # Disable psutil dependency
 
 # Initialize translation manager BEFORE importing models
 from sqlalchemy_i18n import make_translatable
@@ -151,14 +155,23 @@ def sample_admin(db_session):
 @pytest.fixture
 def sample_customer(db_session, sample_user):
     """Create a sample customer for testing."""
+    import uuid
     customer = Customer(
+        id=uuid.uuid4(),
         user_id=sample_user.id,
+        customer_code='CUST-001',
         email='customer@example.com',
         mobile='+1234567890',
-        customer_type='individual',
-        status='active'
+        phone='+1234567890'
     )
     db_session.add(customer)
+    db_session.flush()
+    
+    # Set translations
+    from config import Config
+    for locale in Config.AVAILABLE_LOCALES.keys():
+        customer.translations[locale].name = f'Test Customer {locale}'
+    
     db_session.commit()
     return customer
 
@@ -166,46 +179,64 @@ def sample_customer(db_session, sample_user):
 @pytest.fixture
 def sample_company(db_session):
     """Create a sample company for testing."""
+    import uuid
     company = Company(
-        name='Test Company',
-        email='company@example.com',
-        phone='+1234567890',
-        country='US',
-        is_active=True
+        id=uuid.uuid4(),
+        location='Test Location',
+        manager='Test Manager',
+        cr_number='CR123456',
+        tax_id='TAX123456'
     )
     db_session.add(company)
+    db_session.flush()
+    
+    # Set translations
+    from config import Config
+    for locale in Config.AVAILABLE_LOCALES.keys():
+        company.translations[locale].name = f'Test Company {locale}'
+    
     db_session.commit()
     return company
 
 
 @pytest.fixture
-def sample_branch(db_session, sample_company):
+def sample_branch(db_session):
     """Create a sample branch for testing."""
+    import uuid
     branch = Branch(
-        company_id=sample_company.id,
-        name='Test Branch',
-        address='123 Test Street',
-        city='Test City',
-        country='US',
-        is_active=True
+        id=uuid.uuid4(),
+        location='Test Location',
+        manager='Test Manager'
     )
     db_session.add(branch)
+    db_session.flush()
+    
+    # Set translations
+    from config import Config
+    for locale in Config.AVAILABLE_LOCALES.keys():
+        branch.translations[locale].name = f'Test Branch {locale}'
+    
     db_session.commit()
     return branch
 
 
 @pytest.fixture
-def sample_store(db_session, sample_branch):
+def sample_store(db_session):
     """Create a sample store for testing."""
+    import uuid
     store = Store(
-        branch_id=sample_branch.id,
-        name='Test Store',
-        address='456 Store Street',
-        city='Store City',
-        country='US',
-        is_active=True
+        id=uuid.uuid4(),
+        location='Test Store Location',
+        manager='Store Manager'
     )
     db_session.add(store)
+    db_session.flush()
+    
+    # Set translations
+    from config import Config
+    for locale in Config.AVAILABLE_LOCALES.keys():
+        store.translations[locale].name = f'Test Store {locale}'
+    
     db_session.commit()
     return store
 
@@ -417,7 +448,7 @@ def sample_quotation(db_session, sample_user, sample_product):
 
 
 @pytest.fixture
-def sample_invoice(db_session, sample_order, sample_customer, sample_branch):
+def sample_invoice(db_session, sample_customer, sample_branch, sample_user):
     """Create a sample invoice for testing."""
     from app.invoices.model import Invoice
     import uuid
@@ -432,7 +463,7 @@ def sample_invoice(db_session, sample_order, sample_customer, sample_branch):
         grand_total=125.00,
         customer_id=sample_customer.id,
         branch_id=sample_branch.id,
-        user_id=sample_order.user_id,
+        user_id=sample_user.id,
         payment_status='pending',
         date=date.today(),
         create_date=datetime.now(timezone.utc),

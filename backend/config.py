@@ -94,7 +94,9 @@ class BaseConfig(object):
             DATABASE_URL = 'sqlite:///{}.sqlite3'.format(DB_DATABASE_NAME)
             db_specific_options = {
                 'connect_args': {'check_same_thread': False},
-                'poolclass': StaticPool
+                'poolclass': StaticPool,
+                # Enable native UUID support for SQLite (convert to string)
+                'native_datetime': True
             }
         
         elif DB_TYPE == 'postgres':

@@ -28,10 +28,11 @@ from app.common.error_handling import ResourceNotFoundError
 # ========== Local Fixtures ==========
 
 @pytest.fixture
-def sample_cart(db_session):
+def sample_cart(db_session, sample_user):
     """Create a sample cart for testing."""
     cart = Cart(
         id=uuid.uuid4(),
+        user_id=sample_user.id,
         total=0.00,
     )
     db_session.add(cart)
@@ -72,9 +73,10 @@ class TestCartService(BaseServiceTestCase):
     
     # ========== CRUD Operations Tests ==========
     
-    def test_create_cart_success(self, db_session):
+    def test_create_cart_success(self, db_session, sample_user):
         """Test creating a cart successfully."""
         cart_data = {
+            'user_id': sample_user.id,
             'total': 100.00
         }
         
@@ -84,7 +86,7 @@ class TestCartService(BaseServiceTestCase):
         assert 'Created' in result
         
         # Verify cart was created
-        carts = db_session.query(Cart).all()
+        carts = db_session.query(Cart).filter_by(user_id=sample_user.id).all()
         assert len(carts) > 0
     
     def test_get_user_cart(self, db_session, sample_user, sample_product):

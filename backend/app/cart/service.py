@@ -74,10 +74,8 @@ class CartService:
     @handle_errors("Cart")
     def get_carts_my(self, id): 
         with session_scope() as session:
-            # TODO: Cart model needs user_id field to associate carts with users
-            # For now, return all carts (needs architecture fix)
             query = session.query(Cart)
-            carts = query.all()  # Temporary: return all carts until user_id field is added
+            carts = query.filter_by(user_id=id).all()
             result = {'carts': self.get_cart_model(carts)}
             return result, 200
 
@@ -86,6 +84,7 @@ class CartService:
         with session_scope() as session:
             cart = Cart(
                 id=uuid.uuid4(),
+                user_id=not_exisit_in_request(data, 'user_id', None),
                 total=not_exisit_in_request(data, 'total', None),
                 create_date=datetime.now(timezone.utc),
                 modified_date=datetime.now(timezone.utc)

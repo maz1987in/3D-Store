@@ -16,6 +16,7 @@ class Cart(Base):
     __tablename__ = 'cart'
 
     id = sql.Column(UUIDType(binary=False), primary_key=True)
+    user_id = sql.Column(UUIDType(binary=False), index=True, nullable=True)  # Added for user association
     total = sql.Column(sql.Float)
     create_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc))
     modified_date = sql.Column(sql.DateTime, default=datetime.now(timezone.utc))
@@ -24,6 +25,7 @@ class Cart(Base):
     def json(self):
         data = {}
         data['id'] = self.id
+        data['user_id'] = self.user_id
         data['total'] = self.total
         data['create_date'] = self.create_date
         data['modified_date'] = self.modified_date
